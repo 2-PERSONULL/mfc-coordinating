@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.modelmapper.ModelMapper;
 
+import com.mfc.coordinating.common.entity.BaseEntity;
 import com.mfc.coordinating.common.exception.BaseException;
 import com.mfc.coordinating.common.response.BaseResponse;
 import com.mfc.coordinating.requests.application.RequestsService;
@@ -20,6 +22,7 @@ import com.mfc.coordinating.requests.dto.req.RequestsCreateReqDto;
 import com.mfc.coordinating.requests.dto.res.RequestsListResDto;
 import com.mfc.coordinating.requests.enums.RequestsListSortType;
 import com.mfc.coordinating.requests.vo.req.RequestsCreateReqVo;
+import com.mfc.coordinating.requests.vo.res.RequestsDetailResVo;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -57,16 +60,29 @@ public class RequestsController {
 	}
 	@GetMapping("")
 	public BaseResponse<?> getRequestsList(
-		// @RequestHeader("Authorization") String token  // uuid
+		// @RequestHeader HttpHeaders header,  // uuid
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "30") int pageSize,
 		@RequestParam(defaultValue = "LATEST")RequestsListSortType sortType
 	){
-		// String uuid = jwtProvider.getUuid(token);	//uuid
+		// List<String> uuid = header.get("UUID");
 		String uuid = "userUuidTest";
 
 		List<RequestsListResDto> requestsList= requestsService.getRequestsList(page, pageSize, sortType, uuid);
 
 		return new BaseResponse<>(requestsList); // VO 추후 수정 예정
 	}
+
+	@GetMapping("/{requestId}")
+	public BaseResponse<?> getRequestsDetail(
+		// @RequestHeader HttpHeaders header,  // uuid
+		@PathVariable Long requestId
+	){
+		// List<String> uuid = header.get("UUID");
+		String uuid = "userUuidTest";
+
+		return new BaseResponse<>(modelMapper.map(requestsService.getRequestsDetail(requestId, uuid), RequestsDetailResVo.class));
+	}
+
+
 }

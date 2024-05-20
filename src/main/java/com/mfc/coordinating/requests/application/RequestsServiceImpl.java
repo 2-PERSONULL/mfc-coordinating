@@ -10,12 +10,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.mfc.coordinating.common.exception.BaseException;
+import com.mfc.coordinating.common.response.BaseResponseStatus;
 import com.mfc.coordinating.requests.domain.Requests;
 import com.mfc.coordinating.requests.dto.req.RequestsCreateReqDto;
+import com.mfc.coordinating.requests.dto.res.RequestsDetailResDto;
 import com.mfc.coordinating.requests.dto.res.RequestsListResDto;
 import com.mfc.coordinating.requests.enums.RequestsListSortType;
 import com.mfc.coordinating.requests.infrastructure.RequestsRepository;
 
+import ch.qos.logback.core.spi.ErrorCodes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -82,5 +86,13 @@ public class RequestsServiceImpl implements RequestsService{
 			index++;
 		}
 		return requestsList;
+	}
+
+	@Override
+	public RequestsDetailResDto getRequestsDetail(Long requestId, String uuid) {
+		Requests requests = requestsRepository.findByRequestId(requestId)
+			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
+
+		return RequestsDetailResDto.toBuild(requests);
 	}
 }
