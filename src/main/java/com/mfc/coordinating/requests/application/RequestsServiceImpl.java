@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,12 +15,13 @@ import com.mfc.coordinating.common.exception.BaseException;
 import com.mfc.coordinating.common.response.BaseResponseStatus;
 import com.mfc.coordinating.requests.domain.Requests;
 import com.mfc.coordinating.requests.dto.req.RequestsCreateReqDto;
+import com.mfc.coordinating.requests.dto.req.RequestsUpdateReqDto;
 import com.mfc.coordinating.requests.dto.res.RequestsDetailResDto;
 import com.mfc.coordinating.requests.dto.res.RequestsListResDto;
 import com.mfc.coordinating.requests.enums.RequestsListSortType;
 import com.mfc.coordinating.requests.infrastructure.RequestsRepository;
+import com.mfc.coordinating.requests.vo.req.RequestsUpdateReqVo;
 
-import ch.qos.logback.core.spi.ErrorCodes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -94,5 +96,28 @@ public class RequestsServiceImpl implements RequestsService{
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
 
 		return RequestsDetailResDto.toBuild(requests);
+	}
+
+	@Override
+	public void updateRequests(RequestsUpdateReqDto dto, Long requestId, String uuid) {
+		Requests requests = requestsRepository.findByRequestId(requestId)
+			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
+
+		requestsRepository.save(Requests.builder()
+				.requestId(requests.getRequestId())
+				.userId(requests.getUserId())
+				.title(dto.getTitle())
+				.description(dto.getDescription())
+				.options(dto.getOptions())
+				.totalPrice(dto.getTotalPrice())
+				.situation(dto.getSituation())
+				.referenceImages(dto.getReferenceImages())
+				.myImages(dto.getMyImages())
+				.budget(dto.getBudget())
+				.brand(dto.getBrand())
+				.otherRequirements(dto.getOtherRequirements())
+				.deadline(dto.getDeadline())
+				.state(dto.getState())
+			.build());
 	}
 }

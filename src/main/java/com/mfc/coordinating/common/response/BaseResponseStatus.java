@@ -111,7 +111,8 @@ public enum BaseResponseStatus {
 	/**
 	 * 21000 : coordinating Service Error
 	 */
-	COORDINATING_REQUESTS_NOT_FOUND(HttpStatus.NOT_FOUND, false, 21001, "존재하지 않는 코디요청서 입니다.");
+	COORDINATING_REQUESTS_NOT_FOUND(HttpStatus.NOT_FOUND, false, 21001, "존재하지 않는 코디요청서 입니다."),
+	COORDINATING_REQUESTS_NOT_MATCH(HttpStatus.BAD_REQUEST, false, 21002, "유저가 요청한 코디가 아닙니다.");
 
 
 	private final HttpStatusCode httpStatusCode;

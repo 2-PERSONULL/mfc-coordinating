@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,9 +20,11 @@ import com.mfc.coordinating.common.exception.BaseException;
 import com.mfc.coordinating.common.response.BaseResponse;
 import com.mfc.coordinating.requests.application.RequestsService;
 import com.mfc.coordinating.requests.dto.req.RequestsCreateReqDto;
+import com.mfc.coordinating.requests.dto.req.RequestsUpdateReqDto;
 import com.mfc.coordinating.requests.dto.res.RequestsListResDto;
 import com.mfc.coordinating.requests.enums.RequestsListSortType;
 import com.mfc.coordinating.requests.vo.req.RequestsCreateReqVo;
+import com.mfc.coordinating.requests.vo.req.RequestsUpdateReqVo;
 import com.mfc.coordinating.requests.vo.res.RequestsDetailResVo;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -59,6 +62,7 @@ public class RequestsController {
 		return new BaseResponse<>();
 	}
 	@GetMapping("")
+	@Operation(summary = "코디 요청서 목록 조회", description = "유저가 작성한 코디 요청서 목록을 조회합니다.")
 	public BaseResponse<?> getRequestsList(
 		// @RequestHeader HttpHeaders header,  // uuid
 		@RequestParam(defaultValue = "0") int page,
@@ -74,6 +78,7 @@ public class RequestsController {
 	}
 
 	@GetMapping("/{requestId}")
+	@Operation(summary = "코디 요청서 세부내용 조회", description = "유저가 작성한 코디 요청서 세부 내용을 조회합니다.")
 	public BaseResponse<?> getRequestsDetail(
 		// @RequestHeader HttpHeaders header,  // uuid
 		@PathVariable Long requestId
@@ -84,5 +89,18 @@ public class RequestsController {
 		return new BaseResponse<>(modelMapper.map(requestsService.getRequestsDetail(requestId, uuid), RequestsDetailResVo.class));
 	}
 
+	@PutMapping("/{requestId}")
+	@Operation(summary = "코디 요청서 수정", description = "유저가 작성한 코디 요청서 내용을 수정합니다.")
+	public BaseResponse<?> updateRequests(
+		// @RequestHeader HttpHeaders header,  // uuid
+		@PathVariable Long requestId,
+		@RequestBody RequestsUpdateReqVo vo
+	){
+		// List<String> uuid = header.get("UUID");
+		String uuid = "userUuidTest";
+		requestsService.updateRequests(modelMapper.map(vo, RequestsUpdateReqDto.class), requestId, uuid);
+
+		return new BaseResponse<>();
+	}
 
 }
