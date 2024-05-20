@@ -1,9 +1,19 @@
 package com.mfc.coordinating.requests.application;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.mfc.coordinating.requests.domain.Requests;
 import com.mfc.coordinating.requests.dto.req.RequestsCreateReqDto;
+import com.mfc.coordinating.requests.dto.res.RequestsListResDto;
+import com.mfc.coordinating.requests.enums.RequestsListSortType;
 import com.mfc.coordinating.requests.infrastructure.RequestsRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -34,5 +44,31 @@ public class RequestsServiceImpl implements RequestsService{
 			.build();
 
 		requestsRepository.save(requests);
+	}
+
+	@Override
+	public Page<RequestsListResDto> getRequestsList(int page, int pageSize, RequestsListSortType sortType, String uuid) {
+		Pageable pageable;
+		String userId = uuid;
+
+		if (sortType == RequestsListSortType.LATEST) {
+			pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
+		} else if (sortType == RequestsListSortType.DEADLINE_ASC) {
+			pageable = PageRequest.of(page, pageSize, Sort.by("deadline").ascending());
+		} else {
+			pageable = PageRequest.of(page, pageSize, Sort.by("deadline").descending());
+		}
+
+		Page<Object[]> requestPage = requestsRepository.findByUserId(userId, pageable);
+		return requestPage.map(result -> {
+			Long requestsId = (Long)result[0];
+			String title  = (String)result[1];
+			String description = (String)result[2];
+			LocalDate deadline = (LocalDate)result[3];
+
+			return new RequestsListResDto(requestsId, title, description, deadline);
+		});
+
+
 	}
 }

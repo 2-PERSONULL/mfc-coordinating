@@ -3,7 +3,7 @@ package com.mfc.coordinating.requests.domain;
 import java.time.LocalDate;
 
 import com.mfc.coordinating.common.entity.BaseEntity;
-import com.mfc.coordinating.requests.enums.ReviewStates;
+import com.mfc.coordinating.requests.enums.RequestsStates;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -68,5 +68,5 @@ public class Requests extends BaseEntity {
 	private LocalDate deadline;
 
 	@Column(nullable = false)
-	private ReviewStates state;
+	private RequestsStates state;
 }

@@ -2,7 +2,7 @@ package com.mfc.coordinating.requests.vo.req;
 
 import java.time.LocalDate;
 
-import com.mfc.coordinating.requests.enums.ReviewStates;
+import com.mfc.coordinating.requests.enums.RequestsStates;
 
 import lombok.Getter;
 
@@ -19,5 +19,5 @@ public class RequestsCreateReqVo {
 	String brand;
 	String otherRequirements;
 	LocalDate deadline;
-	ReviewStates state;
+	RequestsStates state;
 }
