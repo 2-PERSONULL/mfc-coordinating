@@ -65,8 +65,8 @@ public class RequestsController {
 		// String uuid = jwtProvider.getUuid(token);	//uuid
 		String uuid = "userUuidTest";
 
-		Page<RequestsListResDto> requestsList= requestsService.getRequestsList(page, pageSize, sortType, uuid);
+		List<RequestsListResDto> requestsList= requestsService.getRequestsList(page, pageSize, sortType, uuid);
 
-		return new BaseResponse<>(requestsList);
+		return new BaseResponse<>(requestsList); // VO 추후 수정 예정
 	}
 }
