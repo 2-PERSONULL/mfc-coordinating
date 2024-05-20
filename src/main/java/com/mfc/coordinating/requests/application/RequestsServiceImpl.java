@@ -22,6 +22,7 @@ import com.mfc.coordinating.requests.enums.RequestsListSortType;
 import com.mfc.coordinating.requests.infrastructure.RequestsRepository;
 import com.mfc.coordinating.requests.vo.req.RequestsUpdateReqVo;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,6 +33,7 @@ public class RequestsServiceImpl implements RequestsService{
 	private final RequestsRepository requestsRepository;
 
 	@Override
+	@Transactional
 	public void createRequests(RequestsCreateReqDto requestsCreateReqDto, String uuid) {
 		Requests requests = Requests.builder()
 			.userId(uuid)
@@ -53,6 +55,7 @@ public class RequestsServiceImpl implements RequestsService{
 	}
 
 	@Override
+	@Transactional
 	public List<RequestsListResDto> getRequestsList(int page, int pageSize, RequestsListSortType sortType, String uuid) {
 		Pageable pageable;
 		String userId = uuid;
@@ -91,6 +94,7 @@ public class RequestsServiceImpl implements RequestsService{
 	}
 
 	@Override
+	@Transactional
 	public RequestsDetailResDto getRequestsDetail(Long requestId, String uuid) {
 		Requests requests = requestsRepository.findByRequestId(requestId)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
@@ -99,8 +103,10 @@ public class RequestsServiceImpl implements RequestsService{
 	}
 
 	@Override
+	@Transactional
 	public void updateRequests(RequestsUpdateReqDto dto, Long requestId, String uuid) {
-		Requests requests = requestsRepository.findByRequestId(requestId)
+		String userId = uuid;
+		Requests requests = requestsRepository.findByRequestIdAndUserId(requestId, userId)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
 
 		requestsRepository.save(Requests.builder()
@@ -119,5 +125,17 @@ public class RequestsServiceImpl implements RequestsService{
 				.deadline(dto.getDeadline())
 				.state(dto.getState())
 			.build());
+	}
+
+	@Override
+	@Transactional
+	public void deleteRequests(Long requestId, String uuid) {
+		String userId = uuid;
+		Requests requests = requestsRepository.findByRequestIdAndUserId(requestId, userId)
+			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
+
+		requestsRepository.deleteByRequestId(requestId);
+
+		System.out.println("RequestsServiceImpl.deleteRequests");
 	}
 }

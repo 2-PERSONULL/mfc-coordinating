@@ -19,4 +19,6 @@ public interface RequestsService {
 	RequestsDetailResDto getRequestsDetail(Long requestId, String uuid);
 
 	void updateRequests(RequestsUpdateReqDto dto, Long requestId, String uuid);
+
+	void deleteRequests(Long requestId, String uuid);
 }

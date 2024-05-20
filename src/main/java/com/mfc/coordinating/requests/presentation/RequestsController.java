@@ -4,6 +4,7 @@ import java.net.http.HttpHeaders;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -100,6 +101,18 @@ public class RequestsController {
 		String uuid = "userUuidTest";
 		requestsService.updateRequests(modelMapper.map(vo, RequestsUpdateReqDto.class), requestId, uuid);
 
+		return new BaseResponse<>();
+	}
+
+	@DeleteMapping("/{requestId}")
+	@Operation(summary = "코디 요청서 삭제", description = "유저가 작성한 코디 요청서를 삭제합니다.")
+	public BaseResponse<?> deleteRequests(
+		// @RequestHeader HttpHeaders header,  // uuid
+		@PathVariable Long requestId
+	){
+		// List<String> uuid = header.get("UUID");
+		String uuid = "userUuidTest";
+		requestsService.deleteRequests(requestId, uuid);
 		return new BaseResponse<>();
 	}
 
