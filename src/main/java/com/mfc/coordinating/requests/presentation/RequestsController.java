@@ -62,9 +62,9 @@ public class RequestsController {
 
 		return new BaseResponse<>();
 	}
-	@GetMapping("")
-	@Operation(summary = "코디 요청서 목록 조회", description = "유저가 작성한 코디 요청서 목록을 조회합니다.")
-	public BaseResponse<?> getRequestsList(
+	@GetMapping("/userlist")
+	@Operation(summary = "유저 코디 요청서 목록 조회", description = "유저가 작성한 코디 요청서 목록을 조회합니다.")
+	public BaseResponse<?> getRequestsListUser(
 		// @RequestHeader HttpHeaders header,  // uuid
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "30") int pageSize,
@@ -85,9 +85,9 @@ public class RequestsController {
 		@PathVariable Long requestId
 	){
 		// List<String> uuid = header.get("UUID");
-		String uuid = "userUuidTest";
+		// String uuid = "userUuidTest";
 
-		return new BaseResponse<>(modelMapper.map(requestsService.getRequestsDetail(requestId, uuid), RequestsDetailResVo.class));
+		return new BaseResponse<>(modelMapper.map(requestsService.getRequestsDetail(requestId), RequestsDetailResVo.class));
 	}
 
 	@PutMapping("/{requestId}")
@@ -127,5 +127,19 @@ public class RequestsController {
 		String uuid = "userUuidTest";
 		requestsService.updateProposal(requestId, partnerId, uuid);
 		return new BaseResponse<>();
+	}
+	@GetMapping("/partnerlist")
+	@Operation(summary = "파트너 코디 요청서 목록 조회", description = "유저가 요청한 코디 요청 목록을 조회합니다.")
+	public BaseResponse<?> getRequestsListPatner(
+		// @RequestHeader HttpHeaders header,  // uuid
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "30") int pageSize,
+		@RequestParam(defaultValue = "LATEST")RequestsListSortType sortType
+	){
+		// List<String> uuid = header.get("UUID");
+		String uuid = "partnerUuidTest";
+		List<RequestsListResDto> requestsList = requestsService.getRequestsListPartner(page, pageSize, sortType, uuid);
+
+		return new BaseResponse<>(requestsList);
 	}
 }

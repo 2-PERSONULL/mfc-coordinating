@@ -95,7 +95,7 @@ public class RequestsServiceImpl implements RequestsService{
 	}
 
 	@Override
-	public RequestsDetailResDto getRequestsDetail(Long requestId, String uuid) {
+	public RequestsDetailResDto getRequestsDetail(Long requestId) {
 		Requests requests = requestsRepository.findByRequestId(requestId)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
 
@@ -149,5 +149,43 @@ public class RequestsServiceImpl implements RequestsService{
 		requests.setPartnerId(partnerId);
 
 		requestsRepository.save(requests);
+	}
+
+	@Override
+	public List<RequestsListResDto>  getRequestsListPartner(int page, int pageSize, RequestsListSortType sortType, String uuid) {
+		Pageable pageable;
+		String partnerId = uuid;
+
+		if (sortType == RequestsListSortType.LATEST) {
+			pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
+		} else if (sortType == RequestsListSortType.DEADLINE_ASC) {
+			pageable = PageRequest.of(page, pageSize, Sort.by("deadline").ascending());
+		} else {
+			pageable = PageRequest.of(page, pageSize, Sort.by("deadline").descending());
+		}
+		List<RequestsListResDto> requestsList = new ArrayList<>();
+
+		Page<Object[]> requestPage = requestsRepository.findByPartnerId(partnerId, pageable);
+
+		int index = 0;
+		int returnListSize = requestPage.getContent().size();
+		if (returnListSize < pageSize){
+			pageSize = returnListSize;
+		}
+		for (int i = 0; i < pageSize; i++) {
+			requestsList.add(new RequestsListResDto((long)i, null, null, null, null));
+		}
+		for (Object[] result : requestPage.getContent()) {
+			Long requestsId = (Long)result[0];
+			String title  = (String)result[1];
+			String description = (String)result[2];
+			LocalDate deadline = (LocalDate)result[3];
+			requestsList.get(index).setRequestId(requestsId);
+			requestsList.get(index).setTitle(title);
+			requestsList.get(index).setDescription(description);
+			requestsList.get(index).setDeadline(deadline);
+			index++;
+		}
+		return requestsList;
 	}
 }

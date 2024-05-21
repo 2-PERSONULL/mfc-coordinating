@@ -16,11 +16,13 @@ public interface RequestsService {
 
 	List<RequestsListResDto> getRequestsList(int page, int pageSize, RequestsListSortType sortType, String uuid);
 
-	RequestsDetailResDto getRequestsDetail(Long requestId, String uuid);
+	RequestsDetailResDto getRequestsDetail(Long requestId);
 
 	void updateRequests(RequestsUpdateReqDto dto, Long requestId, String uuid);
 
 	void deleteRequests(Long requestId, String uuid);
 
 	void updateProposal(Long requestId, String partnerId, String uuid);
+
+	List<RequestsListResDto> getRequestsListPartner(int page, int pageSize, RequestsListSortType sortType, String uuid);
 }

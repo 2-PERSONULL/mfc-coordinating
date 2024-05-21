@@ -23,4 +23,7 @@ public interface RequestsRepository extends JpaRepository<Requests, Long> {
 	Optional<Requests> findByRequestIdAndUserId(@Param("requestId") Long requestId,@Param("userId") String userId);
 
 	void deleteByRequestId(Long requestId);
+
+	@Query("SELECT r.requestId, r.title, r.description, r.deadline FROM Requests r WHERE r.partnerId = :partnerId")
+	Page<Object[]> findByPartnerId(@Param("partnerId") String partnerId, Pageable pageable);
 }
