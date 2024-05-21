@@ -116,4 +116,16 @@ public class RequestsController {
 		return new BaseResponse<>();
 	}
 
+	@PutMapping("/proposal/{requestId}/{partnerId}")
+	@Operation(summary = "코디 요청서 요청", description = "유저가 작성한 코디 요청서를 파트너에게 요청합니다.")
+	public BaseResponse<?> updateProposal(
+		// @RequestHeader HttpHeaders header,  // uuid
+		@PathVariable Long requestId,
+		@PathVariable String partnerId
+	){
+		// List<String> uuid = header.get("UUID");
+		String uuid = "userUuidTest";
+		requestsService.updateProposal(requestId, partnerId, uuid);
+		return new BaseResponse<>();
+	}
 }

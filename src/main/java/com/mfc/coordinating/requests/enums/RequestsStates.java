@@ -1,6 +1,7 @@
 package com.mfc.coordinating.requests.enums;
 
 public enum RequestsStates {
+	WRITING,			// 요청전
 	RESPONSE,			// 요청(응답)
 	NONERESPONSE,		// 요청(미응답)
 	WAITING,			// 거래 대기

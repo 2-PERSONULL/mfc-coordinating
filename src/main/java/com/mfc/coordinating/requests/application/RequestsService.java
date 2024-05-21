@@ -21,4 +21,6 @@ public interface RequestsService {
 	void updateRequests(RequestsUpdateReqDto dto, Long requestId, String uuid);
 
 	void deleteRequests(Long requestId, String uuid);
+
+	void updateProposal(Long requestId, String partnerId, String uuid);
 }
