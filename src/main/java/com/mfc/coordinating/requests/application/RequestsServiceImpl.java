@@ -141,7 +141,7 @@ public class RequestsServiceImpl implements RequestsService{
 	@Override
 	public void updateProposal(Long requestId, String partnerId, String uuid) {
 		String userId = uuid;
-		RequestsStates states = RequestsStates.valueOf("RESPONSE");
+		RequestsStates states = RequestsStates.valueOf("NONERESPONSE");
 		Requests requests = requestsRepository.findByRequestIdAndUserId(requestId, userId)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
 
@@ -187,5 +187,17 @@ public class RequestsServiceImpl implements RequestsService{
 			index++;
 		}
 		return requestsList;
+	}
+
+	@Override
+	public void updateAcceptRequests(Long requestId, String uuid) {
+		String partnerId = uuid;
+		RequestsStates states = RequestsStates.valueOf("RESPONSEACCEPT");
+		Requests requests = requestsRepository.findByRequestIdAndPartnerId(requestId, partnerId)
+			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
+
+		requests.setState(states);
+
+		requestsRepository.save(requests);
 	}
 }

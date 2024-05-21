@@ -142,4 +142,17 @@ public class RequestsController {
 
 		return new BaseResponse<>(requestsList);
 	}
+
+	@PutMapping("/accept/{requestId}")
+	@Operation(summary = "파트너 코디 요청 수락", description = "유저가 요청한 코디 요청을 수락합니다.")
+	public BaseResponse<?> updateAcceptRequests(
+		// @RequestHeader HttpHeaders header,  // uuid
+		@PathVariable Long requestId
+	){
+		// List<String> uuid = header.get("UUID");
+		String uuid = "partnerUuidTest";
+		requestsService.updateAcceptRequests(requestId, uuid);
+
+		return new BaseResponse<>();
+	}
 }

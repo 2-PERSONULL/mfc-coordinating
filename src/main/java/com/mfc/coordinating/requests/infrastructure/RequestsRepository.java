@@ -26,4 +26,7 @@ public interface RequestsRepository extends JpaRepository<Requests, Long> {
 
 	@Query("SELECT r.requestId, r.title, r.description, r.deadline FROM Requests r WHERE r.partnerId = :partnerId")
 	Page<Object[]> findByPartnerId(@Param("partnerId") String partnerId, Pageable pageable);
+
+	@Query("SELECT r FROM Requests r WHERE r.requestId = :requestId AND r.partnerId = :partnerId")
+	Optional<Requests> findByRequestIdAndPartnerId(@Param("requestId") Long requestId, @Param("partnerId") String partnerId);
 }

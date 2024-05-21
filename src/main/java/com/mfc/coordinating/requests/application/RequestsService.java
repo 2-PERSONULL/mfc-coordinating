@@ -25,4 +25,6 @@ public interface RequestsService {
 	void updateProposal(Long requestId, String partnerId, String uuid);
 
 	List<RequestsListResDto> getRequestsListPartner(int page, int pageSize, RequestsListSortType sortType, String uuid);
+
+	void updateAcceptRequests(Long requestId, String uuid);
 }
