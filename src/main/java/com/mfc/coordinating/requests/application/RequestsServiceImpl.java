@@ -200,4 +200,16 @@ public class RequestsServiceImpl implements RequestsService{
 
 		requestsRepository.save(requests);
 	}
+
+	@Override
+	public void updateRejectRequests(Long requestId, String uuid) {
+		String partnerId = uuid;
+		RequestsStates states = RequestsStates.valueOf("RESPONSEREJECT");
+		Requests requests = requestsRepository.findByRequestIdAndPartnerId(requestId, partnerId)
+			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
+
+		requests.setState(states);
+
+		requestsRepository.save(requests);
+	}
 }

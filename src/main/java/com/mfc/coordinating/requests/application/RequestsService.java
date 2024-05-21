@@ -27,4 +27,6 @@ public interface RequestsService {
 	List<RequestsListResDto> getRequestsListPartner(int page, int pageSize, RequestsListSortType sortType, String uuid);
 
 	void updateAcceptRequests(Long requestId, String uuid);
+
+	void updateRejectRequests(Long requestId, String uuid);
 }

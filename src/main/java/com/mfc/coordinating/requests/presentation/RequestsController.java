@@ -155,4 +155,19 @@ public class RequestsController {
 
 		return new BaseResponse<>();
 	}
+
+	@PutMapping("/reject/{requestId}")
+	@Operation(summary = "파트너 코디 요청 거절", description = "유저가 요청한 코디 요청을 거절합니다.")
+	public BaseResponse<?> updateRejectRequests(
+		// @RequestHeader HttpHeaders header,  // uuid
+		@PathVariable Long requestId
+	){
+		// List<String> uuid = header.get("UUID");
+		String uuid = "partnerUuidTest";
+
+		requestsService.updateRejectRequests(requestId, uuid);
+
+		return new BaseResponse<>();
+	}
+
 }
