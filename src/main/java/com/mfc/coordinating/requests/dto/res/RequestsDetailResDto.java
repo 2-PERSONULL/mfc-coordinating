@@ -26,6 +26,7 @@ public class RequestsDetailResDto {
 	private String otherRequirements;
 	private LocalDate deadline;
 	private RequestsStates state;
+	private String partnerId;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 
@@ -45,6 +46,7 @@ public class RequestsDetailResDto {
 			.otherRequirements(requests.getOtherRequirements())
 			.deadline(requests.getDeadline())
 			.state(requests.getState())
+			.partnerId(requests.getPartnerId())
 			.createdAt(requests.getCreatedAt())
 			.updatedAt(requests.getUpdatedAt())
 			.build();

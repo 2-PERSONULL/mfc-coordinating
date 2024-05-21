@@ -23,4 +23,5 @@ public class RequestsCreateReqDto {
 	String otherRequirements;
 	LocalDate deadline;
 	RequestsStates state;
+	String partnerId;
 }
