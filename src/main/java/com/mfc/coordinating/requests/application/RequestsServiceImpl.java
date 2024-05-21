@@ -19,6 +19,7 @@ import com.mfc.coordinating.requests.dto.req.RequestsUpdateReqDto;
 import com.mfc.coordinating.requests.dto.res.RequestsDetailResDto;
 import com.mfc.coordinating.requests.dto.res.RequestsListResDto;
 import com.mfc.coordinating.requests.enums.RequestsListSortType;
+import com.mfc.coordinating.requests.enums.RequestsStates;
 import com.mfc.coordinating.requests.infrastructure.RequestsRepository;
 import com.mfc.coordinating.requests.vo.req.RequestsUpdateReqVo;
 
@@ -29,11 +30,11 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional
 public class RequestsServiceImpl implements RequestsService{
 	private final RequestsRepository requestsRepository;
 
 	@Override
-	@Transactional
 	public void createRequests(RequestsCreateReqDto requestsCreateReqDto, String uuid) {
 		Requests requests = Requests.builder()
 			.userId(uuid)
@@ -49,13 +50,13 @@ public class RequestsServiceImpl implements RequestsService{
 			.otherRequirements(requestsCreateReqDto.getOtherRequirements())
 			.deadline(requestsCreateReqDto.getDeadline())
 			.state(requestsCreateReqDto.getState())
+			.partnerId(requestsCreateReqDto.getPartnerId())
 			.build();
 
 		requestsRepository.save(requests);
 	}
 
 	@Override
-	@Transactional
 	public List<RequestsListResDto> getRequestsList(int page, int pageSize, RequestsListSortType sortType, String uuid) {
 		Pageable pageable;
 		String userId = uuid;
@@ -94,8 +95,7 @@ public class RequestsServiceImpl implements RequestsService{
 	}
 
 	@Override
-	@Transactional
-	public RequestsDetailResDto getRequestsDetail(Long requestId, String uuid) {
+	public RequestsDetailResDto getRequestsDetail(Long requestId) {
 		Requests requests = requestsRepository.findByRequestId(requestId)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
 
@@ -103,7 +103,6 @@ public class RequestsServiceImpl implements RequestsService{
 	}
 
 	@Override
-	@Transactional
 	public void updateRequests(RequestsUpdateReqDto dto, Long requestId, String uuid) {
 		String userId = uuid;
 		Requests requests = requestsRepository.findByRequestIdAndUserId(requestId, userId)
@@ -124,11 +123,11 @@ public class RequestsServiceImpl implements RequestsService{
 				.otherRequirements(dto.getOtherRequirements())
 				.deadline(dto.getDeadline())
 				.state(dto.getState())
+				.partnerId(dto.getPartnerId())
 			.build());
 	}
 
 	@Override
-	@Transactional
 	public void deleteRequests(Long requestId, String uuid) {
 		String userId = uuid;
 		Requests requests = requestsRepository.findByRequestIdAndUserId(requestId, userId)
@@ -137,5 +136,80 @@ public class RequestsServiceImpl implements RequestsService{
 		requestsRepository.deleteByRequestId(requestId);
 
 		System.out.println("RequestsServiceImpl.deleteRequests");
+	}
+
+	@Override
+	public void updateProposal(Long requestId, String partnerId, String uuid) {
+		String userId = uuid;
+		RequestsStates states = RequestsStates.valueOf("NONERESPONSE");
+		Requests requests = requestsRepository.findByRequestIdAndUserId(requestId, userId)
+			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
+
+		requests.setState(states);
+		requests.setPartnerId(partnerId);
+
+		requestsRepository.save(requests);
+	}
+
+	@Override
+	public List<RequestsListResDto>  getRequestsListPartner(int page, int pageSize, RequestsListSortType sortType, String uuid) {
+		Pageable pageable;
+		String partnerId = uuid;
+
+		if (sortType == RequestsListSortType.LATEST) {
+			pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
+		} else if (sortType == RequestsListSortType.DEADLINE_ASC) {
+			pageable = PageRequest.of(page, pageSize, Sort.by("deadline").ascending());
+		} else {
+			pageable = PageRequest.of(page, pageSize, Sort.by("deadline").descending());
+		}
+		List<RequestsListResDto> requestsList = new ArrayList<>();
+
+		Page<Object[]> requestPage = requestsRepository.findByPartnerId(partnerId, pageable);
+
+		int index = 0;
+		int returnListSize = requestPage.getContent().size();
+		if (returnListSize < pageSize){
+			pageSize = returnListSize;
+		}
+		for (int i = 0; i < pageSize; i++) {
+			requestsList.add(new RequestsListResDto((long)i, null, null, null, null));
+		}
+		for (Object[] result : requestPage.getContent()) {
+			Long requestsId = (Long)result[0];
+			String title  = (String)result[1];
+			String description = (String)result[2];
+			LocalDate deadline = (LocalDate)result[3];
+			requestsList.get(index).setRequestId(requestsId);
+			requestsList.get(index).setTitle(title);
+			requestsList.get(index).setDescription(description);
+			requestsList.get(index).setDeadline(deadline);
+			index++;
+		}
+		return requestsList;
+	}
+
+	@Override
+	public void updateAcceptRequests(Long requestId, String uuid) {
+		String partnerId = uuid;
+		RequestsStates states = RequestsStates.valueOf("RESPONSEACCEPT");
+		Requests requests = requestsRepository.findByRequestIdAndPartnerId(requestId, partnerId)
+			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
+
+		requests.setState(states);
+
+		requestsRepository.save(requests);
+	}
+
+	@Override
+	public void updateRejectRequests(Long requestId, String uuid) {
+		String partnerId = uuid;
+		RequestsStates states = RequestsStates.valueOf("RESPONSEREJECT");
+		Requests requests = requestsRepository.findByRequestIdAndPartnerId(requestId, partnerId)
+			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
+
+		requests.setState(states);
+
+		requestsRepository.save(requests);
 	}
 }

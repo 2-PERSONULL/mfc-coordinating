@@ -20,4 +20,5 @@ public class RequestsUpdateReqVo {
 	String otherRequirements;
 	LocalDate deadline;
 	RequestsStates state;
+	String partnerId;
 }

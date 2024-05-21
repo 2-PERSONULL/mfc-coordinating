@@ -26,6 +26,7 @@ public class RequestsDetailResVo {
 	private String otherRequirements;
 	private LocalDate deadline;
 	private RequestsStates state;
+	private String partnerId;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 }

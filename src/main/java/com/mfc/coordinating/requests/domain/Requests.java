@@ -69,4 +69,15 @@ public class Requests extends BaseEntity {
 
 	@Column(nullable = false)
 	private RequestsStates state;
+
+	@Column(name = "partner_id")
+	private String partnerId;
+
+	public void setState(RequestsStates state) {
+		this.state = state;
+	}
+
+	public void setPartnerId(String partnerId) {
+		this.partnerId = partnerId;
+	}
 }

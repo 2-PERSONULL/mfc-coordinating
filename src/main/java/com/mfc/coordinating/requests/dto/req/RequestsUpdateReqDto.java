@@ -22,4 +22,5 @@ public class RequestsUpdateReqDto {
 	String otherRequirements;
 	LocalDate deadline;
 	RequestsStates state;
+	String partnerId;
 }
