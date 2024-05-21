@@ -73,15 +73,15 @@ public enum BaseResponseStatus {
 	/**
 	 * 7000 : item (image & brand & option & category)
 	 */
-	PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, false, 7001, "존재하지 않는 상품입니다."),
-	NO_PRODUCT_WITH_BRAND(HttpStatus.BAD_REQUEST, false, 7002, "브랜드 정보가 없는 상품입니다."),
-	BRAND_NOT_FOUND(HttpStatus.NOT_FOUND, false, 7003, "존재하지 않는 브랜드입니다."),
-	REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, false, 7004, "존재하지 않는 리뷰입니다."),
-	ITEM_OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, false, 7005, "존재하지 않는 상품 옵션입니다."),
-	ITEM_STOCK_NOT_ENOUGH(HttpStatus.BAD_REQUEST, false, 7006, "상품 재고가 부족합니다."),
-	ITEM_STOCK_RESTORE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, false, 7007, "상품 재고 복구에 실패했습니다."),
-	BUNDLE_NOT_FOUND(HttpStatus.NOT_FOUND, false, 7008, "존재하지 않는 묶음입니다."),
-	CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, false, 7009, "존재하지 않는 카테고리입니다."),
+	// PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, false, 7001, "존재하지 않는 상품입니다."),
+	// NO_PRODUCT_WITH_BRAND(HttpStatus.BAD_REQUEST, false, 7002, "브랜드 정보가 없는 상품입니다."),
+	// BRAND_NOT_FOUND(HttpStatus.NOT_FOUND, false, 7003, "존재하지 않는 브랜드입니다."),
+	// REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, false, 7004, "존재하지 않는 리뷰입니다."),
+	// ITEM_OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, false, 7005, "존재하지 않는 상품 옵션입니다."),
+	// ITEM_STOCK_NOT_ENOUGH(HttpStatus.BAD_REQUEST, false, 7006, "상품 재고가 부족합니다."),
+	// ITEM_STOCK_RESTORE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, false, 7007, "상품 재고 복구에 실패했습니다."),
+	// BUNDLE_NOT_FOUND(HttpStatus.NOT_FOUND, false, 7008, "존재하지 않는 묶음입니다."),
+	// CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, false, 7009, "존재하지 않는 카테고리입니다."),
 
 	/**
 	 * 8000 : purchase Service Error
@@ -106,7 +106,14 @@ public enum BaseResponseStatus {
 	CLIP_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, false, 10002, "좋아요한 상품이 아닙니다."),
 	CLIP_CATEGORY_ALREADY_ADDED(HttpStatus.BAD_REQUEST, false, 10003, "이미 좋아요한 카테고리입니다."),
 	CLIP_CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, false, 10004, "좋아요한 카테고리가 아닙니다."),
-	CLIP_CATEGORY_NOT_DELETED(HttpStatus.BAD_REQUEST, false, 10005, "카테고리 좋아요 삭제에 실패했습니다.");
+	CLIP_CATEGORY_NOT_DELETED(HttpStatus.BAD_REQUEST, false, 10005, "카테고리 좋아요 삭제에 실패했습니다."),
+
+	/**
+	 * 21000 : coordinating Service Error
+	 */
+	COORDINATING_REQUESTS_NOT_FOUND(HttpStatus.NOT_FOUND, false, 21001, "존재하지 않는 코디요청서 입니다."),
+	COORDINATING_REQUESTS_NOT_MATCH(HttpStatus.BAD_REQUEST, false, 21002, "유저가 요청한 코디가 아닙니다.");
+
 
 	private final HttpStatusCode httpStatusCode;
 	private final boolean isSuccess;
