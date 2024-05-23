@@ -94,9 +94,10 @@ public enum BaseResponseStatus {
 	 * 9000 : review Service Error
 	 */
 	REVIEW_ALREADY_WRITTEN(HttpStatus.BAD_REQUEST, false, 9001, "이미 리뷰를 작성한 구매목록입니다."),
-	REVIEW_IMAGE_LIMIT(HttpStatus.BAD_REQUEST, false, 9002, "리뷰 이미지는 최대 3개까지 등록 가능합니다."),
-	REVIEW_IMAGE_AUTHORITY(HttpStatus.BAD_REQUEST, false, 9003, "리뷰 이미지를 등록할 권한이 없습니다."),
-	REVIEW_IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, false, 9004, "존재하지 않는 리뷰 이미지입니다."),
+	REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, false, 9002, "존재하지 않는 리뷰입니다."),
+	REVIEW_IMAGE_LIMIT(HttpStatus.BAD_REQUEST, false, 9003, "리뷰 이미지는 최대 3개까지 등록 가능합니다."),
+	REVIEW_IMAGE_AUTHORITY(HttpStatus.BAD_REQUEST, false, 9004, "리뷰 이미지를 등록할 권한이 없습니다."),
+	REVIEW_IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, false, 9005, "존재하지 않는 리뷰 이미지입니다."),
 
 	/**
 	 * 10000 : clip Service Error
