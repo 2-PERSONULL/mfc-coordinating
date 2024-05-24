@@ -44,10 +44,7 @@ public class Confirms extends BaseEntity {
 
 	@Column(name = "due_date", nullable = false)
 	private LocalDate dueDate;
-
-	@Column(nullable = false)
-	private Byte cofirm;
-
+	
 	@Column(name = "request_id", nullable = false)
 	private Long requestId;
 }
