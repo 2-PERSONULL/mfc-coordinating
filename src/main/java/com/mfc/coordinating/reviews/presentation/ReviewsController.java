@@ -6,7 +6,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,12 +26,11 @@ import lombok.RequiredArgsConstructor;
 public class ReviewsController {
 	private final ReviewsService reviewsService;
 
-	@PostMapping
+	@PutMapping
 	@Operation(summary = "리뷰 생성", description = "새로운 리뷰를 생성합니다.")
-	public BaseResponse<Long> createReview(@RequestBody ReviewsRequest request) {
-		Long reviewId = reviewsService.createReview(request.getRequestId(), request.getUserId(), request.getPartnerId(),
-			request.getRating(), request.getComment(), request.getReviewImage());
-		return new BaseResponse<>(reviewId);
+	public BaseResponse<Void> createReview(@RequestBody ReviewsRequest request) {
+		reviewsService.createReview(request);
+		return new BaseResponse<>();
 	}
 
 	@GetMapping("/partner/{partnerId}")

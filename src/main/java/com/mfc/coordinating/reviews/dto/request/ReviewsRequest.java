@@ -1,5 +1,7 @@
 package com.mfc.coordinating.reviews.dto.request;
 
+import java.util.List;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,5 +13,5 @@ public class ReviewsRequest {
 	private String partnerId;
 	private Byte rating;
 	private String comment;
-	private String reviewImage;
+	private List<String> reviewImage;
 }

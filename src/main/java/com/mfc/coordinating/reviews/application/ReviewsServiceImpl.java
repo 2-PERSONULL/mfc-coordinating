@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.mfc.coordinating.common.exception.BaseException;
 import com.mfc.coordinating.common.response.BaseResponseStatus;
+import com.mfc.coordinating.reviews.dto.request.ReviewsRequest;
 import com.mfc.coordinating.reviews.entity.ReviewImage;
 import com.mfc.coordinating.reviews.entity.Reviews;
 import com.mfc.coordinating.reviews.infrastructure.ReviewsRepository;
@@ -22,21 +23,23 @@ public class ReviewsServiceImpl implements ReviewsService {
 
 	@Override
 	@Transactional
-	public void createReview(Long requestId, String userId, String partnerId, Byte rating, String comment,
-		List<String> reviewImageUrls) {
+	public void createReview(ReviewsRequest request) {
 		Reviews review = Reviews.builder()
-			.requestId(requestId)
-			.userId(userId)
-			.partnerId(partnerId)
-			.rating(rating)
-			.comment(comment)
+			.requestId(request.getRequestId())
+			.userId(request.getUserId())
+			.partnerId(request.getPartnerId())
+			.rating(request.getRating())
+			.comment(request.getComment())
 			.build();
 
-		List<ReviewImage> reviewImages = reviewImageUrls.stream()
+		List<ReviewImage> reviewImages = request.getReviewImage().stream()
 			.map(ReviewImage::new)
 			.toList();
 
 		review.updateReviewImage(reviewImages);
+
+		// 리뷰 저장
+		reviewsRepository.save(review);
 	}
 
 	@Override

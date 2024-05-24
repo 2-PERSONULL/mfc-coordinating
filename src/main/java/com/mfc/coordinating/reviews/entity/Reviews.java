@@ -23,7 +23,6 @@ import lombok.ToString;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
 @ToString
 @Getter
 @Table(name = "reviews")
@@ -52,11 +51,22 @@ public class Reviews extends BaseEntity {
 	@OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ReviewImage> reviewImages = new ArrayList<>();
 
+	@Builder
+	public Reviews(Long requestId, String userId, String partnerId, Byte rating, String comment){
+		this.requestId = requestId;
+		this.userId = userId;
+		this.partnerId = partnerId;
+		this.rating = rating;
+		this.comment = comment;
+	}
+
 	public void updateComment(String comment) {
 		this.comment = comment;
 	}
 
-	public void updateReviewImage(List<ReviewImage> reviewImage) {
-		this.reviewImages = reviewImage;
+	public void updateReviewImage(List<ReviewImage> reviewImages) {
+		this.reviewImages.clear();
+		this.reviewImages.addAll(reviewImages);
+		reviewImages.forEach(reviewImage -> reviewImage.setReview(this));
 	}
 }
