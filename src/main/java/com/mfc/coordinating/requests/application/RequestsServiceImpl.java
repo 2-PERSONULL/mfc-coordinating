@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +20,6 @@ import com.mfc.coordinating.requests.dto.res.RequestsListResDto;
 import com.mfc.coordinating.requests.enums.RequestsListSortType;
 import com.mfc.coordinating.requests.enums.RequestsStates;
 import com.mfc.coordinating.requests.infrastructure.RequestsRepository;
-import com.mfc.coordinating.requests.vo.req.RequestsUpdateReqVo;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

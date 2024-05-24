@@ -1,12 +1,17 @@
 package com.mfc.coordinating.reviews.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.mfc.coordinating.common.entity.BaseEntity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -18,7 +23,6 @@ import lombok.ToString;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
 @ToString
 @Getter
 @Table(name = "reviews")
@@ -44,6 +48,25 @@ public class Reviews extends BaseEntity {
 	@Column(nullable = false)
 	private String comment;
 
-	@Column(name = "review_image", nullable = false)
-	private String reviewImage;
+	@OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<ReviewImage> reviewImages = new ArrayList<>();
+
+	@Builder
+	public Reviews(Long requestId, String userId, String partnerId, Byte rating, String comment){
+		this.requestId = requestId;
+		this.userId = userId;
+		this.partnerId = partnerId;
+		this.rating = rating;
+		this.comment = comment;
+	}
+
+	public void updateComment(String comment) {
+		this.comment = comment;
+	}
+
+	public void updateReviewImage(List<ReviewImage> reviewImages) {
+		this.reviewImages.clear();
+		this.reviewImages.addAll(reviewImages);
+		reviewImages.forEach(reviewImage -> reviewImage.setReview(this));
+	}
 }
