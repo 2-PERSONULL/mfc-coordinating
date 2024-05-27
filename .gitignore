@@ -37,3 +37,9 @@ out/
 .vscode/
 
 application.yml
+application-local.yml
+application-prod.yml
+
+# Querydsl
+/target/generated-sources/
+/src/main/generated/
