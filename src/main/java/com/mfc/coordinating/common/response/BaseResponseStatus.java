@@ -71,6 +71,11 @@ public enum BaseResponseStatus {
 	ALREADY_ADDED_WISH_PRODUCT(HttpStatus.CONFLICT, false, 6003, "이미 찜한 상품입니다"),
 
 	/**
+	 * 6000 : Confirms Service Error
+	 */
+	UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, false, 7000, "접근 권한이 없습니다."),
+
+	/**
 	 * 7000 : item (image & brand & option & category)
 	 */
 	// PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, false, 7001, "존재하지 않는 상품입니다."),
@@ -114,7 +119,12 @@ public enum BaseResponseStatus {
 	 */
 	COORDINATING_REQUESTS_NOT_FOUND(HttpStatus.NOT_FOUND, false, 21001, "존재하지 않는 코디요청서 입니다."),
 	COORDINATING_REQUESTS_NOT_MATCH(HttpStatus.BAD_REQUEST, false, 21002, "유저가 요청한 코디가 아닙니다."),
-	COORDINATES_NOT_FOUND(HttpStatus.NOT_FOUND, false, 21003, "존재하지 않는 코디요청서 입니다.");
+	COORDINATES_NOT_FOUND(HttpStatus.NOT_FOUND, false, 21003, "존재하지 않는 코디요청서 입니다."),
+
+	/**
+	 * 22000: confirms Service Error
+	 */
+	CONFIRMS_NOT_FOUND(HttpStatus.NOT_FOUND, false, 22001, "존재하지 않는 코디요청서 입니다.");
 
 
 	private final HttpStatusCode httpStatusCode;

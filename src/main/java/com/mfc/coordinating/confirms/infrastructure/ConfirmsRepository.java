@@ -1,4 +1,8 @@
 package com.mfc.coordinating.confirms.infrastructure;
 
-public interface ConfirmsRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.mfc.coordinating.confirms.domain.Confirms;
+
+public interface ConfirmsRepository extends JpaRepository<Confirms, Long> {
 }
