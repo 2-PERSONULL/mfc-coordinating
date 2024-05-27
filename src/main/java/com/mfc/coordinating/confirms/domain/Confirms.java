@@ -20,7 +20,6 @@ import lombok.ToString;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
 @ToString
 @Getter
 @Table(name = "confirms")
@@ -40,11 +39,36 @@ public class Confirms extends BaseEntity {
 	private Long options;
 
 	@Column(name = "total_price", nullable = false)
-	private Long totalPrice;
+	private Integer totalPrice;
 
 	@Column(name = "due_date", nullable = false)
 	private LocalDate dueDate;
 	
 	@Column(name = "request_id", nullable = false)
 	private Long requestId;
+
+	@Column(name = "status", nullable = false)
+	private Short status;
+
+	@Builder
+	public Confirms(String partnerId, String userId, Long options, Integer totalPrice, LocalDate dueDate, Long requestId,
+		Short status) {
+		this.partnerId = partnerId;
+		this.userId = userId;
+		this.options = options;
+		this.totalPrice = totalPrice;
+		this.dueDate = dueDate;
+		this.requestId = requestId;
+		this.status = 0;
+	}
+
+	public void updateConfirms(LocalDate dueDate, Integer totalPrice, Long options) {
+		this.dueDate = dueDate;
+		this.totalPrice = totalPrice;
+		this.options = options;
+	}
+
+	public void updateStatus() {
+		this.status = 1;
+	}
 }
