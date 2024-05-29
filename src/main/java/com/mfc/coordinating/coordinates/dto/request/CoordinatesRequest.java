@@ -8,11 +8,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CoordinatesRequest {
-	private String partnerId;
-	private String userId;
 	private String category;
 	private String brand;
-	private Integer budget;
+	private Double budget;
 	private String url;
 	private String comment;
 	private List<String> images;

@@ -1,4 +1,4 @@
-package com.mfc.coordinating.confirms.domain;
+package com.mfc.coordinating.trade.domain;
 
 import java.time.LocalDate;
 
@@ -22,12 +22,11 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
 @Getter
-@Table(name = "confirms")
-public class Confirms extends BaseEntity {
+@Table(name = "trade")
+public class Trade extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "confirm_id", nullable = false)
-	private Long confirmId;
+	private Long tradeId;
 
 	@Column(name = "partner_id", nullable = false)
 	private String partnerId;
@@ -51,7 +50,7 @@ public class Confirms extends BaseEntity {
 	private Short status;
 
 	@Builder
-	public Confirms(String partnerId, String userId, Long options, Integer totalPrice, LocalDate dueDate, Long requestId,
+	public Trade(String partnerId, String userId, Long options, Integer totalPrice, LocalDate dueDate, Long requestId,
 		Short status) {
 		this.partnerId = partnerId;
 		this.userId = userId;
@@ -62,7 +61,7 @@ public class Confirms extends BaseEntity {
 		this.status = 0;
 	}
 
-	public void updateConfirms(LocalDate dueDate, Integer totalPrice, Long options) {
+	public void updateTrade(LocalDate dueDate, Integer totalPrice, Long options) {
 		this.dueDate = dueDate;
 		this.totalPrice = totalPrice;
 		this.options = options;

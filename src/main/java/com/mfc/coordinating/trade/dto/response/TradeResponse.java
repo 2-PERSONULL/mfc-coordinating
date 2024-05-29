@@ -1,4 +1,4 @@
-package com.mfc.coordinating.confirms.dto.response;
+package com.mfc.coordinating.trade.dto.response;
 
 import java.time.LocalDate;
 
@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class ConfirmsResponse {
+public class TradeResponse {
 	private Long id;
 	private String partnerId;
 	private String userId;
