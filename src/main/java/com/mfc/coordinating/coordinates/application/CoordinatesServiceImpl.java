@@ -27,8 +27,6 @@ public class CoordinatesServiceImpl implements CoordinatesService {
 	@Transactional
 	public Long createCoordinates(CoordinatesRequest request) {
 		Coordinates coordinates = Coordinates.builder()
-			.partnerId(request.getPartnerId())
-			.userId(request.getUserId())
 			.category(request.getCategory())
 			.brand(request.getBrand())
 			.budget(request.getBudget())
@@ -69,8 +67,6 @@ public class CoordinatesServiceImpl implements CoordinatesService {
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATES_NOT_FOUND));
 
 		coordinates.update(
-			request.getPartnerId(),
-			request.getUserId(),
 			request.getCategory(),
 			request.getBrand(),
 			request.getBudget(),
