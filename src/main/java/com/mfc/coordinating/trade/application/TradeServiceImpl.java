@@ -44,17 +44,17 @@ public class TradeServiceImpl implements TradeService {
 	}
 
 	@Override
-	public void updateTrade(Long id, TradeUpdateRequest updatedConfirmsRequest, String partnerUuid) {
-		Trade confirms = tradeRepository.findById(id)
+	public void updateTrade(Long id, TradeUpdateRequest updatedTradeRequest, String partnerUuid) {
+		Trade trade = tradeRepository.findById(id)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.CONFIRMS_NOT_FOUND));
 
-		if (!confirms.getPartnerId().equals(partnerUuid)) {
+		if (!trade.getPartnerId().equals(partnerUuid)) {
 			throw new BaseException(BaseResponseStatus.UNAUTHORIZED_ACCESS);
 		}
 
-		confirms.updateTrade(updatedConfirmsRequest.getDueDate(), updatedConfirmsRequest.getTotalPrice(),
-			updatedConfirmsRequest.getOptions());
-		Trade updatedTrade = tradeRepository.save(confirms);
+		trade.updateTrade(updatedTradeRequest.getDueDate(), updatedTradeRequest.getTotalPrice(),
+			updatedTradeRequest.getOptions());
+		Trade updatedTrade = tradeRepository.save(trade);
 		mapToResponse(updatedTrade);
 	}
 
@@ -78,9 +78,8 @@ public class TradeServiceImpl implements TradeService {
 		if (!trade.getUserId().equals(userUuid)) {
 			throw new BaseException(BaseResponseStatus.UNAUTHORIZED_ACCESS);
 		}
-		trade.updateStatus();
-		Trade updatedConfirms = tradeRepository.save(trade);
-		mapToResponse(updatedConfirms);
+		// dirty checking
+		trade.tradeSettled();
 	}
 
 	private Trade mapToEntity(TradeRequest tradeRequest) {
@@ -94,16 +93,16 @@ public class TradeServiceImpl implements TradeService {
 			.build();
 	}
 
-	private TradeResponse mapToResponse(Trade confirms) {
+	private TradeResponse mapToResponse(Trade trade) {
 		return TradeResponse.builder()
-			.id(confirms.getTradeId())
-			.partnerId(confirms.getPartnerId())
-			.userId(confirms.getUserId())
-			.options(confirms.getOptions())
-			.totalPrice(confirms.getTotalPrice())
-			.dueDate(confirms.getDueDate())
-			.requestId(confirms.getRequestId())
-			.status(confirms.getStatus())
+			.id(trade.getTradeId())
+			.partnerId(trade.getPartnerId())
+			.userId(trade.getUserId())
+			.options(trade.getOptions())
+			.totalPrice(trade.getTotalPrice())
+			.dueDate(trade.getDueDate())
+			.requestId(trade.getRequestId())
+			.status(trade.getStatus())
 			.build();
 	}
 }

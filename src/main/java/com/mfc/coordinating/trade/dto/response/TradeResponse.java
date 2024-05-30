@@ -2,6 +2,8 @@ package com.mfc.coordinating.trade.dto.response;
 
 import java.time.LocalDate;
 
+import com.mfc.coordinating.trade.enums.TradeStatus;
+
 import lombok.Builder;
 import lombok.Getter;
 
@@ -15,5 +17,5 @@ public class TradeResponse {
 	private Integer totalPrice;
 	private LocalDate dueDate;
 	private Long requestId;
-	private Short status;
+	private TradeStatus status;
 }

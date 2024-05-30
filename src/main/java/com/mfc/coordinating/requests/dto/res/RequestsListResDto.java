@@ -3,10 +3,12 @@ package com.mfc.coordinating.requests.dto.res;
 import java.time.LocalDate;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
+@Builder
 public class RequestsListResDto {
 	private Long id;
 	private Long requestId;

@@ -1,6 +1,5 @@
 package com.mfc.coordinating.requests.domain;
 
-
 import com.mfc.coordinating.common.entity.BaseEntity;
 
 import jakarta.persistence.Column;
@@ -48,7 +47,9 @@ public class Requests extends BaseEntity {
 	private String otherRequirements;
 
 	@Builder
-	public Requests(String userId, String title, String description, String situation, Long budget, String brand, String otherRequirements) {
+	public Requests(Long requestId, String userId, String title, String description, String situation, Long budget, String brand,
+		String otherRequirements) {
+		this.requestId = requestId;
 		this.userId = userId;
 		this.title = title;
 		this.description = description;
@@ -56,5 +57,14 @@ public class Requests extends BaseEntity {
 		this.budget = budget;
 		this.brand = brand;
 		this.otherRequirements = otherRequirements;
+	}
+
+	public void updateRequests(String title, String description, String situation, Long budget, String brand, String otherRequirements) {
+		this.description = description;
+		this.situation = situation;
+		this.budget = budget;
+		this.brand = brand;
+		this.otherRequirements = otherRequirements;
+		this.title = title;
 	}
 }

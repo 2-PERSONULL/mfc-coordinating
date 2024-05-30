@@ -3,6 +3,7 @@ package com.mfc.coordinating.trade.domain;
 import java.time.LocalDate;
 
 import com.mfc.coordinating.common.entity.BaseEntity;
+import com.mfc.coordinating.trade.enums.TradeStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -47,18 +48,18 @@ public class Trade extends BaseEntity {
 	private Long requestId;
 
 	@Column(name = "status", nullable = false)
-	private Short status;
+	private TradeStatus status;
 
 	@Builder
 	public Trade(String partnerId, String userId, Long options, Integer totalPrice, LocalDate dueDate, Long requestId,
-		Short status) {
+		TradeStatus status) {
 		this.partnerId = partnerId;
 		this.userId = userId;
 		this.options = options;
 		this.totalPrice = totalPrice;
 		this.dueDate = dueDate;
 		this.requestId = requestId;
-		this.status = 0;
+		this.status = TradeStatus.TRADE_PAID;
 	}
 
 	public void updateTrade(LocalDate dueDate, Integer totalPrice, Long options) {
@@ -67,7 +68,7 @@ public class Trade extends BaseEntity {
 		this.options = options;
 	}
 
-	public void updateStatus() {
-		this.status = 1;
+	public void tradeSettled() {
+		this.status = TradeStatus.TRADE_COMPLETED;
 	}
 }
