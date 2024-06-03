@@ -2,6 +2,8 @@ package com.mfc.coordinating.requests.dto.res;
 
 import java.time.LocalDate;
 
+import com.mfc.coordinating.requests.enums.RequestsStates;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,9 +14,11 @@ import lombok.Getter;
 public class RequestsListResDto {
 	private Long id;
 	private Long requestId;
+	private String userId;
+	private String partnerId;
 	private String title;
-	private String description;
 	private LocalDate deadline;
+	private RequestsStates status;
 
 	public void setRequestId(Long requestId) {
 		this.requestId = requestId;
@@ -24,11 +28,16 @@ public class RequestsListResDto {
 		this.title = title;
 	}
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
 
 	public void setDeadline(LocalDate deadline) {
 		this.deadline = deadline;
+	}
+
+	public void setPartnerId(String partnerId) {
+		this.partnerId = partnerId;
+	}
+
+	public void setStatus(RequestsStates status) {
+		this.status = status;
 	}
 }

@@ -11,4 +11,5 @@ public class RequestsHistoryListVo {
 	private String partnerId;
 	private LocalDate deadline;
 	private String status;
+	private String title;
 }

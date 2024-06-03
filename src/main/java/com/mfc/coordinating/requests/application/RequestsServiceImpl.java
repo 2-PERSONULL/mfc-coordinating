@@ -1,7 +1,6 @@
 package com.mfc.coordinating.requests.application;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -67,55 +66,33 @@ public class RequestsServiceImpl implements RequestsService{
 	}
 
 	@Override
-	public List<RequestsListResDto> getRequestsList(int page, int pageSize, RequestsListSortType sortType, String uuid) {
-		Pageable pageable;
-		String userId = uuid;
+	public List<RequestsListResDto> getRequestsListByUser(int page, int pageSize, RequestsListSortType sortType, String uuid) {
+		Pageable pageable = getPageable(page, pageSize, sortType);
 
-		if (sortType == RequestsListSortType.LATEST) {
-			pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
-		} else if (sortType == RequestsListSortType.DEADLINE_ASC) {
-			pageable = PageRequest.of(page, pageSize, Sort.by("deadline").ascending());
-		} else {
-			pageable = PageRequest.of(page, pageSize, Sort.by("deadline").descending());
-		}
-
-		Page<RequestHistory> requestHistoryPage = requestHistoryRepository.findByUserId(userId, pageable);
+		Page<RequestHistory> requestHistoryPage = requestHistoryRepository.findByUserId(uuid, pageable);
 
 		return requestHistoryPage.getContent().stream()
-			.map(history -> {
-				Requests request = requestsRepository.findById(history.getRequestId())
-					.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
-
-				return RequestsListResDto.builder()
-					.requestId(request.getRequestId())
-					.title(request.getTitle())
-					.description(request.getDescription())
-					.deadline(history.getDeadline())
-					.build();
-			})
+			.map(history -> RequestsListResDto.builder()
+				.requestId(history.getRequestId())
+				.userId(history.getUserId())
+				.title(history.getTitle())
+				.partnerId(history.getPartnerId())
+				.deadline(history.getDeadline())
+				.status(history.getStatus())
+				.build())
 			.toList();
 	}
 
 	@Override
-	public List<RequestsListResDto> getRequestsListByUser(int page, int pageSize, RequestsListSortType sortType, String uuid) {
-		Pageable pageable;
-		String userId = uuid;
+	public List<RequestsListResDto> getRequestsList(int page, int pageSize, RequestsListSortType sortType, String uuid) {
+		Pageable pageable = getPageable(page, pageSize, sortType);
 
-		if (sortType == RequestsListSortType.LATEST) {
-			pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
-		} else if (sortType == RequestsListSortType.DEADLINE_ASC) {
-			pageable = PageRequest.of(page, pageSize, Sort.by("deadline").ascending());
-		} else {
-			pageable = PageRequest.of(page, pageSize, Sort.by("deadline").descending());
-		}
-
-		Page<Requests> requestsPage = requestsRepository.findByUserId(userId, pageable);
+		Page<Requests> requestsPage = requestsRepository.findByUserId(uuid, pageable);
 
 		return requestsPage.getContent().stream()
 			.map(request -> RequestsListResDto.builder()
 				.requestId(request.getRequestId())
 				.title(request.getTitle())
-				.description(request.getDescription())
 				.build())
 			.toList();
 	}
@@ -137,10 +114,10 @@ public class RequestsServiceImpl implements RequestsService{
 
 		return RequestsDetailResDto.toBuild(requests, referenceImageUrls, myImageUrls);
 	}
+
 	@Override
 	public void updateRequests(RequestsUpdateReqDto dto, Long requestId, String uuid) {
-		String userId = uuid;
-		Requests requests = requestsRepository.findByRequestIdAndUserId(requestId, userId)
+		Requests requests = requestsRepository.findByRequestIdAndUserId(requestId, uuid)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
 
 		requests.updateRequests(dto.getTitle(), dto.getDescription(), dto.getSituation(), dto.getBudget(),
@@ -156,31 +133,29 @@ public class RequestsServiceImpl implements RequestsService{
 		List<MyImage> myImages = dto.getMyImages().stream()
 			.map(url -> MyImage.builder().url(url).requests(requests).build())
 			.toList();
+		myImageRepository.saveAll(myImages);
 	}
 
 	@Override
 	public void deleteRequests(Long requestId, String uuid) {
-		String userId = uuid;
-		Requests requests = requestsRepository.findByRequestIdAndUserId(requestId, userId)
+		Requests requests = requestsRepository.findByRequestIdAndUserId(requestId, uuid)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
 
 		referenceImageRepository.deleteByRequestId(requestId);
 		myImageRepository.deleteByRequestId(requestId);
 		requestsRepository.delete(requests);
-
-		System.out.println("RequestsServiceImpl.deleteRequests");
 	}
 
 	@Override
 	public void updateProposal(Long requestId, String partnerId, String uuid, LocalDate deadline) {
-		String userId = uuid;
 		RequestsStates states = RequestsStates.NONERESPONSE;
-		Requests requests = requestsRepository.findByRequestIdAndUserId(requestId, userId)
+		Requests requests = requestsRepository.findByRequestIdAndUserId(requestId, uuid)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
 
 		RequestHistory requestHistory = RequestHistory.builder()
 			.requestId(requestId)
-			.userId(Long.parseLong(userId))
+			.title(requests.getTitle())
+			.userId(uuid)
 			.partnerId(partnerId)
 			.deadline(deadline)
 			.status(states)
@@ -190,41 +165,21 @@ public class RequestsServiceImpl implements RequestsService{
 	}
 
 	@Override
-	public List<RequestsListResDto>  getRequestsListPartner(int page, int pageSize, RequestsListSortType sortType, String uuid) {
-		Pageable pageable;
-		String partnerId = uuid;
+	public List<RequestsListResDto> getRequestsListPartner(int page, int pageSize, RequestsListSortType sortType, String uuid) {
+		Pageable pageable = getPageable(page, pageSize, sortType);
 
-		if (sortType == RequestsListSortType.LATEST) {
-			pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
-		} else if (sortType == RequestsListSortType.DEADLINE_ASC) {
-			pageable = PageRequest.of(page, pageSize, Sort.by("deadline").ascending());
-		} else {
-			pageable = PageRequest.of(page, pageSize, Sort.by("deadline").descending());
-		}
-		List<RequestsListResDto> requestsList = new ArrayList<>();
+		Page<RequestHistory> requestHistoryPage = requestHistoryRepository.findByPartnerId(uuid, pageable);
 
-		Page<Object[]> requestPage = requestHistoryRepository.findByPartnerId(partnerId, pageable);
-
-		int index = 0;
-		int returnListSize = requestPage.getContent().size();
-		if (returnListSize < pageSize){
-			pageSize = returnListSize;
-		}
-		for (int i = 0; i < pageSize; i++) {
-			requestsList.add(new RequestsListResDto((long)i, null, null, null, null));
-		}
-		for (Object[] result : requestPage.getContent()) {
-			Long requestsId = (Long)result[0];
-			String title  = (String)result[1];
-			String description = (String)result[2];
-			LocalDate deadline = (LocalDate)result[3];
-			requestsList.get(index).setRequestId(requestsId);
-			requestsList.get(index).setTitle(title);
-			requestsList.get(index).setDescription(description);
-			requestsList.get(index).setDeadline(deadline);
-			index++;
-		}
-		return requestsList;
+		return requestHistoryPage.getContent().stream()
+			.map(history -> RequestsListResDto.builder()
+				.requestId(history.getRequestId())
+				.userId(history.getUserId())
+				.title(history.getTitle())
+				.partnerId(history.getPartnerId())
+				.deadline(history.getDeadline())
+				.status(history.getStatus())
+				.build())
+			.toList();
 	}
 
 	@Override
@@ -235,7 +190,6 @@ public class RequestsServiceImpl implements RequestsService{
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
 
 		requestHistory.updateStatus(states);
-
 	}
 
 	@Override
@@ -246,6 +200,15 @@ public class RequestsServiceImpl implements RequestsService{
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
 
 		requestHistory.updateStatus(states);
+	}
 
+	private Pageable getPageable(int page, int pageSize, RequestsListSortType sortType) {
+		if (sortType == RequestsListSortType.LATEST) {
+			return PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
+		} else if (sortType == RequestsListSortType.DEADLINE_ASC) {
+			return PageRequest.of(page, pageSize, Sort.by("deadline").ascending());
+		} else {
+			return PageRequest.of(page, pageSize, Sort.by("deadline").descending());
+		}
 	}
 }

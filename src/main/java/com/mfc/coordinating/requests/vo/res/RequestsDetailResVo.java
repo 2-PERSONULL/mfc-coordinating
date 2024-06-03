@@ -1,9 +1,6 @@
 package com.mfc.coordinating.requests.vo.res;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
-import com.mfc.coordinating.requests.enums.RequestsStates;
+import java.util.List;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -16,17 +13,10 @@ public class RequestsDetailResVo {
 	private String userId;
 	private String title;
 	private String description;
-	private Long options;
-	private Long totalPrice;
 	private String situation;
-	private String referenceImages;
-	private String myImages;
 	private Long budget;
 	private String brand;
 	private String otherRequirements;
-	private LocalDate deadline;
-	private RequestsStates state;
-	private String partnerId;
-	private LocalDateTime createdAt;
-	private LocalDateTime updatedAt;
+	private List<String> referenceImages;
+	private List<String> myImages;
 }

@@ -59,8 +59,12 @@ public class RequestsController {
 		@RequestParam(defaultValue = "30") int pageSize,
 		@RequestParam(defaultValue = "LATEST") RequestsListSortType sortType
 	){
-		return new BaseResponse<>(modelMapper.map(requestsService.getRequestsListByUser(page, pageSize, sortType, uuid),
-			RequestsHistoryListVo.class));
+		List<RequestsListResDto> requestsList = requestsService.getRequestsListByUser(page, pageSize, sortType, uuid);
+		List<RequestsHistoryListVo> requestsHistoryList = requestsList.stream()
+			.map(dto -> modelMapper.map(dto, RequestsHistoryListVo.class))
+			.toList();
+
+		return new BaseResponse<>(requestsHistoryList);
 	}
 
 	@GetMapping("/{requestId}")

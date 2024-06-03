@@ -29,7 +29,7 @@ public class RequestHistory extends BaseEntity {
 	private Long requestId;
 
 	@Column(nullable = false)
-	private Long userId;
+	private String userId;
 
 	@Column(nullable = false)
 	private String partnerId;
@@ -40,13 +40,17 @@ public class RequestHistory extends BaseEntity {
 	@Column(nullable = false)
 	private RequestsStates status;
 
+	@Column(nullable = false)
+	private String title;
+
 	@Builder
-	public RequestHistory(Long requestId, Long userId, String partnerId, LocalDate deadline, RequestsStates status) {
+	public RequestHistory(Long requestId, String userId, String partnerId, LocalDate deadline, RequestsStates status, String title) {
 		this.requestId = requestId;
 		this.userId = userId;
 		this.partnerId = partnerId;
 		this.deadline = deadline;
 		this.status = status;
+		this.title = title;
 	}
 
 	public void updateStatus(RequestsStates status) {

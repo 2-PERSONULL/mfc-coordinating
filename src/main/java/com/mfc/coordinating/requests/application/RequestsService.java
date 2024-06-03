@@ -30,4 +30,5 @@ public interface RequestsService {
 	void updateAcceptRequests(Long requestId, String uuid);
 
 	void updateRejectRequests(Long requestId, String uuid);
+
 }
