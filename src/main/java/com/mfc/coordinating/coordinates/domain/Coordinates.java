@@ -1,15 +1,15 @@
 package com.mfc.coordinating.coordinates.domain;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.mfc.coordinating.requests.domain.RequestHistory;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,19 +24,13 @@ public class Coordinates {
 	private Long id;
 
 	@Column(nullable = false)
-	private String partnerId;
-
-	@Column(nullable = false)
-	private String userId;
-
-	@Column(nullable = false)
-	private String category;
+	private String category; // list로 만들기
 
 	@Column(nullable = false)
 	private String brand;
 
 	@Column(nullable = false)
-	private Integer budget;
+	private Double budget;
 
 	@Column(nullable = false)
 	private String url;
@@ -47,14 +41,13 @@ public class Coordinates {
 	@Column(nullable = false)
 	private Long requestId;
 
-	@OneToMany(mappedBy = "coordinates", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<CoordinatesImage> images = new ArrayList<>();
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id")
+	private RequestHistory requestHistory;
 
 	@Builder
-	public Coordinates(String partnerId, String userId, String category, String brand,
-		Integer budget, String url, String comment, Long requestId) {
-		this.partnerId = partnerId;
-		this.userId = userId;
+	public Coordinates(String category, String brand,
+		Double budget, String url, String comment, Long requestId) {
 		this.category = category;
 		this.brand = brand;
 		this.budget = budget;
@@ -63,10 +56,8 @@ public class Coordinates {
 		this.requestId = requestId;
 	}
 
-	public void update(String partnerId, String userId, String category, String brand,
-		Integer budget, String url, String comment) {
-		this.partnerId = partnerId;
-		this.userId = userId;
+	public void update(String category, String brand,
+		Double budget, String url, String comment) {
 		this.category = category;
 		this.brand = brand;
 		this.budget = budget;

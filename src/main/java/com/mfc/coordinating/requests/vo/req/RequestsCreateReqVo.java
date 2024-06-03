@@ -1,8 +1,6 @@
 package com.mfc.coordinating.requests.vo.req;
 
-import java.time.LocalDate;
-
-import com.mfc.coordinating.requests.enums.RequestsStates;
+import java.util.List;
 
 import lombok.Getter;
 
@@ -10,15 +8,11 @@ import lombok.Getter;
 public class RequestsCreateReqVo {
 	String title;
 	String description;
-	Long options;
-	Long totalPrice;
 	String situation;
-	String referenceImages;
-	String myImages;
+	List<String> referenceImages;
+	List<String> myImages;
 	Long budget;
-	String brand;
+	List<String> brand;
+	List<String> category;
 	String otherRequirements;
-	LocalDate deadline;
-	RequestsStates state;
-	String partnerId;
 }

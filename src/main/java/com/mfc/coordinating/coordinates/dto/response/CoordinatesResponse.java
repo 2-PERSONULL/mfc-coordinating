@@ -12,27 +12,23 @@ import lombok.Getter;
 @Builder
 public class CoordinatesResponse {
 	private Long id;
-	private String partnerId;
-	private String userId;
 	private String category;
 	private String brand;
-	private Integer budget;
+	private Double budget;
 	private String url;
 	private String comment;
 	private List<String> images;
 	private Long requestId;
 
-	public static CoordinatesResponse from(Coordinates coordinates) {
+	public static CoordinatesResponse from(Coordinates coordinates, List<CoordinatesImage> coordinatesImages) {
 		return CoordinatesResponse.builder()
 			.id(coordinates.getId())
-			.partnerId(coordinates.getPartnerId())
-			.userId(coordinates.getUserId())
 			.category(coordinates.getCategory())
 			.brand(coordinates.getBrand())
 			.budget(coordinates.getBudget())
 			.url(coordinates.getUrl())
 			.comment(coordinates.getComment())
-			.images(coordinates.getImages().stream()
+			.images(coordinatesImages.stream()
 				.map(CoordinatesImage::getImageUrl)
 				.toList())
 			.requestId(coordinates.getRequestId())

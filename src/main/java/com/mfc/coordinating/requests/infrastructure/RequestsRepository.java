@@ -14,8 +14,8 @@ import com.mfc.coordinating.requests.domain.Requests;
 @Repository
 public interface RequestsRepository extends JpaRepository<Requests, Long> {
 
-	@Query("SELECT r.requestId, r.title, r.description, r.deadline FROM Requests r WHERE r.userId = :userId")
-	Page<Object[]> findByUserId(@Param("userId") String userId, Pageable pageable);
+	@Query("SELECT r.requestId, r.title, r.description FROM Requests r WHERE r.userId = :userId")
+	Page<Requests> findByUserId(@Param("userId") String userId, Pageable pageable);
 
 	Optional<Requests> findByRequestId(Long requestId);
 
@@ -23,10 +23,4 @@ public interface RequestsRepository extends JpaRepository<Requests, Long> {
 	Optional<Requests> findByRequestIdAndUserId(@Param("requestId") Long requestId,@Param("userId") String userId);
 
 	void deleteByRequestId(Long requestId);
-
-	@Query("SELECT r.requestId, r.title, r.description, r.deadline FROM Requests r WHERE r.partnerId = :partnerId")
-	Page<Object[]> findByPartnerId(@Param("partnerId") String partnerId, Pageable pageable);
-
-	@Query("SELECT r FROM Requests r WHERE r.requestId = :requestId AND r.partnerId = :partnerId")
-	Optional<Requests> findByRequestIdAndPartnerId(@Param("requestId") Long requestId, @Param("partnerId") String partnerId);
 }

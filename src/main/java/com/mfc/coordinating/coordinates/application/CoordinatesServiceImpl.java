@@ -27,8 +27,6 @@ public class CoordinatesServiceImpl implements CoordinatesService {
 	@Transactional
 	public Long createCoordinates(CoordinatesRequest request) {
 		Coordinates coordinates = Coordinates.builder()
-			.partnerId(request.getPartnerId())
-			.userId(request.getUserId())
 			.category(request.getCategory())
 			.brand(request.getBrand())
 			.budget(request.getBudget())
@@ -56,7 +54,10 @@ public class CoordinatesServiceImpl implements CoordinatesService {
 	public CoordinatesResponse getCoordinatesById(Long id) {
 		Coordinates coordinates = coordinatesRepository.findById(id)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATES_NOT_FOUND));
-		return CoordinatesResponse.from(coordinates);
+
+		List<CoordinatesImage> coordinatesImages = coordinatesImageRepository.findByCoordinatesId(id);
+
+		return CoordinatesResponse.from(coordinates, coordinatesImages);
 	}
 
 	@Override
@@ -66,8 +67,6 @@ public class CoordinatesServiceImpl implements CoordinatesService {
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATES_NOT_FOUND));
 
 		coordinates.update(
-			request.getPartnerId(),
-			request.getUserId(),
 			request.getCategory(),
 			request.getBrand(),
 			request.getBudget(),
@@ -75,7 +74,7 @@ public class CoordinatesServiceImpl implements CoordinatesService {
 			request.getComment()
 		);
 
-		coordinatesImageRepository.deleteByCoordinates(coordinates);
+		coordinatesImageRepository.deleteByCoordinatesId(coordinates.getId());
 
 		List<CoordinatesImage> images = request.getImages().stream()
 			.map(imageUrl -> CoordinatesImage.builder()
@@ -90,8 +89,6 @@ public class CoordinatesServiceImpl implements CoordinatesService {
 	@Override
 	@Transactional
 	public void deleteCoordinates(Long id) {
-		Coordinates coordinates = coordinatesRepository.findById(id)
-			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATES_NOT_FOUND));
-		coordinatesRepository.delete(coordinates);
+		coordinatesRepository.deleteById(id);
 	}
 }

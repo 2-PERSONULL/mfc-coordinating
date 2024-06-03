@@ -1,7 +1,6 @@
 package com.mfc.coordinating.requests.application;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -12,6 +11,11 @@ import org.springframework.stereotype.Service;
 
 import com.mfc.coordinating.common.exception.BaseException;
 import com.mfc.coordinating.common.response.BaseResponseStatus;
+import com.mfc.coordinating.requests.domain.Brand;
+import com.mfc.coordinating.requests.domain.Category;
+import com.mfc.coordinating.requests.domain.MyImage;
+import com.mfc.coordinating.requests.domain.ReferenceImage;
+import com.mfc.coordinating.requests.domain.RequestHistory;
 import com.mfc.coordinating.requests.domain.Requests;
 import com.mfc.coordinating.requests.dto.req.RequestsCreateReqDto;
 import com.mfc.coordinating.requests.dto.req.RequestsUpdateReqDto;
@@ -19,6 +23,11 @@ import com.mfc.coordinating.requests.dto.res.RequestsDetailResDto;
 import com.mfc.coordinating.requests.dto.res.RequestsListResDto;
 import com.mfc.coordinating.requests.enums.RequestsListSortType;
 import com.mfc.coordinating.requests.enums.RequestsStates;
+import com.mfc.coordinating.requests.infrastructure.BrandRepository;
+import com.mfc.coordinating.requests.infrastructure.CategoryRepository;
+import com.mfc.coordinating.requests.infrastructure.MyImageRepository;
+import com.mfc.coordinating.requests.infrastructure.ReferenceImageRepository;
+import com.mfc.coordinating.requests.infrastructure.RequestHistoryRepository;
 import com.mfc.coordinating.requests.infrastructure.RequestsRepository;
 
 import jakarta.transaction.Transactional;
@@ -29,8 +38,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 @Transactional
-public class RequestsServiceImpl implements RequestsService{
+public class RequestsServiceImpl implements RequestsService {
 	private final RequestsRepository requestsRepository;
+	private final RequestHistoryRepository requestHistoryRepository;
+	private final MyImageRepository myImageRepository;
+	private final ReferenceImageRepository referenceImageRepository;
+	private final CategoryRepository categoryRepository;
+	private final BrandRepository brandRepository;
 
 	@Override
 	public void createRequests(RequestsCreateReqDto requestsCreateReqDto, String uuid) {
@@ -38,58 +52,64 @@ public class RequestsServiceImpl implements RequestsService{
 			.userId(uuid)
 			.title(requestsCreateReqDto.getTitle())
 			.description(requestsCreateReqDto.getDescription())
-			.options(requestsCreateReqDto.getOptions())
-			.totalPrice(requestsCreateReqDto.getTotalPrice())
 			.situation(requestsCreateReqDto.getSituation())
-			.referenceImages(requestsCreateReqDto.getReferenceImages())
-			.myImages(requestsCreateReqDto.getMyImages())
 			.budget(requestsCreateReqDto.getBudget())
-			.brand(requestsCreateReqDto.getBrand())
 			.otherRequirements(requestsCreateReqDto.getOtherRequirements())
-			.deadline(requestsCreateReqDto.getDeadline())
-			.state(requestsCreateReqDto.getState())
-			.partnerId(requestsCreateReqDto.getPartnerId())
 			.build();
 
-		requestsRepository.save(requests);
+		Requests savedRequests = requestsRepository.save(requests);
+
+		List<ReferenceImage> referenceImages = requestsCreateReqDto.getReferenceImages().stream()
+			.map(url -> ReferenceImage.builder().url(url).requests(savedRequests).build())
+			.toList();
+		referenceImageRepository.saveAll(referenceImages);
+
+		List<MyImage> myImages = requestsCreateReqDto.getMyImages().stream()
+			.map(url -> MyImage.builder().url(url).requests(savedRequests).build())
+			.toList();
+		myImageRepository.saveAll(myImages);
+
+		List<Category> categories = requestsCreateReqDto.getCategory().stream()
+			.map(name -> Category.builder().name(name).requests(savedRequests).build())
+			.toList();
+		categoryRepository.saveAll(categories);
+
+		List<Brand> brands = requestsCreateReqDto.getBrand().stream()
+			.map(name -> Brand.builder().name(name).requests(savedRequests).build())
+			.toList();
+		brandRepository.saveAll(brands);
+	}
+
+	@Override
+	public List<RequestsListResDto> getRequestsListByUser(int page, int pageSize, RequestsListSortType sortType, String uuid) {
+		Pageable pageable = getPageable(page, pageSize, sortType);
+
+		Page<RequestHistory> requestHistoryPage = requestHistoryRepository.findByUserId(uuid, pageable);
+
+		return requestHistoryPage.getContent().stream()
+			.map(history -> RequestsListResDto.builder()
+				.requestId(history.getRequestId())
+				.userId(history.getUserId())
+				.title(history.getTitle())
+				.partnerId(history.getPartnerId())
+				.deadline(history.getDeadline())
+				.status(history.getStatus())
+				.build())
+			.toList();
 	}
 
 	@Override
 	public List<RequestsListResDto> getRequestsList(int page, int pageSize, RequestsListSortType sortType, String uuid) {
-		Pageable pageable;
-		String userId = uuid;
+		Pageable pageable = getPageable(page, pageSize, sortType);
 
-		if (sortType == RequestsListSortType.LATEST) {
-			pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
-		} else if (sortType == RequestsListSortType.DEADLINE_ASC) {
-			pageable = PageRequest.of(page, pageSize, Sort.by("deadline").ascending());
-		} else {
-			pageable = PageRequest.of(page, pageSize, Sort.by("deadline").descending());
-		}
-		List<RequestsListResDto> requestsList = new ArrayList<>();
+		Page<Requests> requestsPage = requestsRepository.findByUserId(uuid, pageable);
 
-		Page<Object[]> requestPage = requestsRepository.findByUserId(userId, pageable);
-
-		int index = 0;
-		int returnListSize = requestPage.getContent().size();
-		if (returnListSize < pageSize){
-			pageSize = returnListSize;
-		}
-		for (int i = 0; i < pageSize; i++) {
-			requestsList.add(new RequestsListResDto((long)i, null, null, null, null));
-		}
-		for (Object[] result : requestPage.getContent()) {
-			Long requestsId = (Long)result[0];
-			String title  = (String)result[1];
-			String description = (String)result[2];
-			LocalDate deadline = (LocalDate)result[3];
-			requestsList.get(index).setRequestId(requestsId);
-			requestsList.get(index).setTitle(title);
-			requestsList.get(index).setDescription(description);
-			requestsList.get(index).setDeadline(deadline);
-			index++;
-		}
-		return requestsList;
+		return requestsPage.getContent().stream()
+			.map(request -> RequestsListResDto.builder()
+				.requestId(request.getRequestId())
+				.title(request.getTitle())
+				.build())
+			.toList();
 	}
 
 	@Override
@@ -97,117 +117,138 @@ public class RequestsServiceImpl implements RequestsService{
 		Requests requests = requestsRepository.findByRequestId(requestId)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
 
-		return RequestsDetailResDto.toBuild(requests);
+		List<String> categoryNames = categoryRepository.findByRequestId(requestId)
+			.stream()
+			.map(Category::getName)
+			.toList();
+
+		List<String> brandNames = brandRepository.findByRequestId(requestId)
+			.stream()
+			.map(Brand::getName)
+			.toList();
+
+		List<String> referenceImageUrls = referenceImageRepository.findByRequestId(requestId)
+			.stream()
+			.map(ReferenceImage::getUrl)
+			.toList();
+
+		List<String> myImageUrls = myImageRepository.findByRequestId(requestId)
+			.stream()
+			.map(MyImage::getUrl)
+			.toList();
+
+		return RequestsDetailResDto.toBuild(requests, referenceImageUrls, myImageUrls, categoryNames, brandNames);
 	}
 
 	@Override
 	public void updateRequests(RequestsUpdateReqDto dto, Long requestId, String uuid) {
-		String userId = uuid;
-		Requests requests = requestsRepository.findByRequestIdAndUserId(requestId, userId)
+		Requests requests = requestsRepository.findByRequestIdAndUserId(requestId, uuid)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
 
-		requestsRepository.save(Requests.builder()
-				.requestId(requests.getRequestId())
-				.userId(requests.getUserId())
-				.title(dto.getTitle())
-				.description(dto.getDescription())
-				.options(dto.getOptions())
-				.totalPrice(dto.getTotalPrice())
-				.situation(dto.getSituation())
-				.referenceImages(dto.getReferenceImages())
-				.myImages(dto.getMyImages())
-				.budget(dto.getBudget())
-				.brand(dto.getBrand())
-				.otherRequirements(dto.getOtherRequirements())
-				.deadline(dto.getDeadline())
-				.state(dto.getState())
-				.partnerId(dto.getPartnerId())
-			.build());
+		requests.updateRequests(dto.getTitle(), dto.getDescription(), dto.getSituation(), dto.getBudget(),
+			dto.getOtherRequirements());
+
+
+		referenceImageRepository.deleteByRequestId(requestId);
+		List<ReferenceImage> referenceImages = dto.getReferenceImages().stream()
+			.map(url -> ReferenceImage.builder().url(url).requests(requests).build())
+			.toList();
+		referenceImageRepository.saveAll(referenceImages);
+
+		myImageRepository.deleteByRequestId(requestId);
+		List<MyImage> myImages = dto.getMyImages().stream()
+			.map(url -> MyImage.builder().url(url).requests(requests).build())
+			.toList();
+		myImageRepository.saveAll(myImages);
+
+		categoryRepository.deleteByRequestId(requestId);
+		List<Category> categories = dto.getCategory().stream()
+			.map(name -> Category.builder().name(name).requests(requests).build())
+			.toList();
+		categoryRepository.saveAll(categories);
+
+		brandRepository.deleteByRequestId(requestId);
+		List<Brand> brands = dto.getBrand().stream()
+			.map(name -> Brand.builder().name(name).requests(requests).build())
+			.toList();
+		brandRepository.saveAll(brands);
 	}
 
 	@Override
 	public void deleteRequests(Long requestId, String uuid) {
-		String userId = uuid;
-		Requests requests = requestsRepository.findByRequestIdAndUserId(requestId, userId)
+		Requests requests = requestsRepository.findByRequestIdAndUserId(requestId, uuid)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
 
-		requestsRepository.deleteByRequestId(requestId);
-
-		System.out.println("RequestsServiceImpl.deleteRequests");
+		referenceImageRepository.deleteByRequestId(requestId);
+		myImageRepository.deleteByRequestId(requestId);
+		requestsRepository.delete(requests);
+		categoryRepository.deleteByRequestId(requestId);
+		brandRepository.deleteByRequestId(requestId);
 	}
 
 	@Override
-	public void updateProposal(Long requestId, String partnerId, String uuid) {
-		String userId = uuid;
-		RequestsStates states = RequestsStates.valueOf("NONERESPONSE");
-		Requests requests = requestsRepository.findByRequestIdAndUserId(requestId, userId)
+	public void updateProposal(Long requestId, String partnerId, String uuid, LocalDate deadline) {
+		RequestsStates states = RequestsStates.NONERESPONSE;
+		Requests requests = requestsRepository.findByRequestIdAndUserId(requestId, uuid)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
 
-		requests.setState(states);
-		requests.setPartnerId(partnerId);
+		RequestHistory requestHistory = RequestHistory.builder()
+			.requestId(requestId)
+			.title(requests.getTitle())
+			.userId(uuid)
+			.partnerId(partnerId)
+			.deadline(deadline)
+			.status(states)
+			.build();
 
-		requestsRepository.save(requests);
+		requestHistoryRepository.save(requestHistory);
 	}
 
 	@Override
-	public List<RequestsListResDto>  getRequestsListPartner(int page, int pageSize, RequestsListSortType sortType, String uuid) {
-		Pageable pageable;
+	public List<RequestsListResDto> getRequestsListPartner(int page, int pageSize, RequestsListSortType sortType, String uuid) {
+		Pageable pageable = getPageable(page, pageSize, sortType);
+
+		Page<RequestHistory> requestHistoryPage = requestHistoryRepository.findByPartnerId(uuid, pageable);
+
+		return requestHistoryPage.getContent().stream()
+			.map(history -> RequestsListResDto.builder()
+				.requestId(history.getRequestId())
+				.userId(history.getUserId())
+				.title(history.getTitle())
+				.partnerId(history.getPartnerId())
+				.deadline(history.getDeadline())
+				.status(history.getStatus())
+				.build())
+			.toList();
+	}
+
+	@Override
+	public void updateAcceptRequests(Long historyId, String uuid) {
 		String partnerId = uuid;
+		RequestsStates states = RequestsStates.RESPONSEACCEPT;
+		RequestHistory requestHistory = requestHistoryRepository.findById(historyId)
+			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
 
+		requestHistory.updateStatus(states);
+	}
+
+	@Override
+	public void updateRejectRequests(Long historyId, String uuid) {
+		String partnerId = uuid;
+		RequestsStates states = RequestsStates.RESPONSEREJECT;
+		RequestHistory requestHistory = requestHistoryRepository.findById(historyId)
+			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
+
+		requestHistory.updateStatus(states);
+	}
+
+	private Pageable getPageable(int page, int pageSize, RequestsListSortType sortType) {
 		if (sortType == RequestsListSortType.LATEST) {
-			pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
+			return PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
 		} else if (sortType == RequestsListSortType.DEADLINE_ASC) {
-			pageable = PageRequest.of(page, pageSize, Sort.by("deadline").ascending());
+			return PageRequest.of(page, pageSize, Sort.by("deadline").ascending());
 		} else {
-			pageable = PageRequest.of(page, pageSize, Sort.by("deadline").descending());
+			return PageRequest.of(page, pageSize, Sort.by("deadline").descending());
 		}
-		List<RequestsListResDto> requestsList = new ArrayList<>();
-
-		Page<Object[]> requestPage = requestsRepository.findByPartnerId(partnerId, pageable);
-
-		int index = 0;
-		int returnListSize = requestPage.getContent().size();
-		if (returnListSize < pageSize){
-			pageSize = returnListSize;
-		}
-		for (int i = 0; i < pageSize; i++) {
-			requestsList.add(new RequestsListResDto((long)i, null, null, null, null));
-		}
-		for (Object[] result : requestPage.getContent()) {
-			Long requestsId = (Long)result[0];
-			String title  = (String)result[1];
-			String description = (String)result[2];
-			LocalDate deadline = (LocalDate)result[3];
-			requestsList.get(index).setRequestId(requestsId);
-			requestsList.get(index).setTitle(title);
-			requestsList.get(index).setDescription(description);
-			requestsList.get(index).setDeadline(deadline);
-			index++;
-		}
-		return requestsList;
-	}
-
-	@Override
-	public void updateAcceptRequests(Long requestId, String uuid) {
-		String partnerId = uuid;
-		RequestsStates states = RequestsStates.valueOf("RESPONSEACCEPT");
-		Requests requests = requestsRepository.findByRequestIdAndPartnerId(requestId, partnerId)
-			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
-
-		requests.setState(states);
-
-		requestsRepository.save(requests);
-	}
-
-	@Override
-	public void updateRejectRequests(Long requestId, String uuid) {
-		String partnerId = uuid;
-		RequestsStates states = RequestsStates.valueOf("RESPONSEREJECT");
-		Requests requests = requestsRepository.findByRequestIdAndPartnerId(requestId, partnerId)
-			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
-
-		requests.setState(states);
-
-		requestsRepository.save(requests);
 	}
 }
