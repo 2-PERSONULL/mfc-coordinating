@@ -41,30 +41,27 @@ public class Requests extends BaseEntity {
 	@Column(nullable = false)
 	private Long budget;
 
-	private String brand;
-
 	@Column(name = "other_requirements")
 	private String otherRequirements;
 
 	@Builder
-	public Requests(Long requestId, String userId, String title, String description, String situation, Long budget, String brand,
-		String otherRequirements) {
+	public Requests(Long requestId, String userId, String title, String description, String situation,
+		Long budget, String otherRequirements) {
 		this.requestId = requestId;
 		this.userId = userId;
 		this.title = title;
 		this.description = description;
 		this.situation = situation;
 		this.budget = budget;
-		this.brand = brand;
 		this.otherRequirements = otherRequirements;
 	}
 
-	public void updateRequests(String title, String description, String situation, Long budget, String brand, String otherRequirements) {
+	public void updateRequests(String title, String description, String situation, Long budget,
+		String otherRequirements) {
+		this.title = title;
 		this.description = description;
 		this.situation = situation;
 		this.budget = budget;
-		this.brand = brand;
 		this.otherRequirements = otherRequirements;
-		this.title = title;
 	}
 }

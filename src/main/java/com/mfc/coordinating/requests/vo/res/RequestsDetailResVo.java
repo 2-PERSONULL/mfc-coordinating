@@ -15,7 +15,8 @@ public class RequestsDetailResVo {
 	private String description;
 	private String situation;
 	private Long budget;
-	private String brand;
+	private List<String> brand;
+	private List<String> category;
 	private String otherRequirements;
 	private List<String> referenceImages;
 	private List<String> myImages;

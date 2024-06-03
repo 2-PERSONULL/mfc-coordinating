@@ -39,7 +39,7 @@ public class Trade extends BaseEntity {
 	private Long options;
 
 	@Column(name = "total_price", nullable = false)
-	private Integer totalPrice;
+	private Double totalPrice;
 
 	@Column(name = "due_date", nullable = false)
 	private LocalDate dueDate;
@@ -51,7 +51,7 @@ public class Trade extends BaseEntity {
 	private TradeStatus status;
 
 	@Builder
-	public Trade(String partnerId, String userId, Long options, Integer totalPrice, LocalDate dueDate, Long requestId,
+	public Trade(String partnerId, String userId, Long options, Double totalPrice, LocalDate dueDate, Long requestId,
 		TradeStatus status) {
 		this.partnerId = partnerId;
 		this.userId = userId;
@@ -62,7 +62,7 @@ public class Trade extends BaseEntity {
 		this.status = TradeStatus.TRADE_PAID;
 	}
 
-	public void updateTrade(LocalDate dueDate, Integer totalPrice, Long options) {
+	public void updateTrade(LocalDate dueDate, Double totalPrice, Long options) {
 		this.dueDate = dueDate;
 		this.totalPrice = totalPrice;
 		this.options = options;

@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import com.mfc.coordinating.common.exception.BaseException;
 import com.mfc.coordinating.common.response.BaseResponseStatus;
+import com.mfc.coordinating.requests.domain.Brand;
+import com.mfc.coordinating.requests.domain.Category;
 import com.mfc.coordinating.requests.domain.MyImage;
 import com.mfc.coordinating.requests.domain.ReferenceImage;
 import com.mfc.coordinating.requests.domain.RequestHistory;
@@ -21,6 +23,8 @@ import com.mfc.coordinating.requests.dto.res.RequestsDetailResDto;
 import com.mfc.coordinating.requests.dto.res.RequestsListResDto;
 import com.mfc.coordinating.requests.enums.RequestsListSortType;
 import com.mfc.coordinating.requests.enums.RequestsStates;
+import com.mfc.coordinating.requests.infrastructure.BrandRepository;
+import com.mfc.coordinating.requests.infrastructure.CategoryRepository;
 import com.mfc.coordinating.requests.infrastructure.MyImageRepository;
 import com.mfc.coordinating.requests.infrastructure.ReferenceImageRepository;
 import com.mfc.coordinating.requests.infrastructure.RequestHistoryRepository;
@@ -34,11 +38,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 @Transactional
-public class RequestsServiceImpl implements RequestsService{
+public class RequestsServiceImpl implements RequestsService {
 	private final RequestsRepository requestsRepository;
 	private final RequestHistoryRepository requestHistoryRepository;
 	private final MyImageRepository myImageRepository;
 	private final ReferenceImageRepository referenceImageRepository;
+	private final CategoryRepository categoryRepository;
+	private final BrandRepository brandRepository;
 
 	@Override
 	public void createRequests(RequestsCreateReqDto requestsCreateReqDto, String uuid) {
@@ -48,7 +54,6 @@ public class RequestsServiceImpl implements RequestsService{
 			.description(requestsCreateReqDto.getDescription())
 			.situation(requestsCreateReqDto.getSituation())
 			.budget(requestsCreateReqDto.getBudget())
-			.brand(requestsCreateReqDto.getBrand())
 			.otherRequirements(requestsCreateReqDto.getOtherRequirements())
 			.build();
 
@@ -63,6 +68,16 @@ public class RequestsServiceImpl implements RequestsService{
 			.map(url -> MyImage.builder().url(url).requests(savedRequests).build())
 			.toList();
 		myImageRepository.saveAll(myImages);
+
+		List<Category> categories = requestsCreateReqDto.getCategory().stream()
+			.map(name -> Category.builder().name(name).requests(savedRequests).build())
+			.toList();
+		categoryRepository.saveAll(categories);
+
+		List<Brand> brands = requestsCreateReqDto.getBrand().stream()
+			.map(name -> Brand.builder().name(name).requests(savedRequests).build())
+			.toList();
+		brandRepository.saveAll(brands);
 	}
 
 	@Override
@@ -102,6 +117,16 @@ public class RequestsServiceImpl implements RequestsService{
 		Requests requests = requestsRepository.findByRequestId(requestId)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
 
+		List<String> categoryNames = categoryRepository.findByRequestId(requestId)
+			.stream()
+			.map(Category::getName)
+			.toList();
+
+		List<String> brandNames = brandRepository.findByRequestId(requestId)
+			.stream()
+			.map(Brand::getName)
+			.toList();
+
 		List<String> referenceImageUrls = referenceImageRepository.findByRequestId(requestId)
 			.stream()
 			.map(ReferenceImage::getUrl)
@@ -112,7 +137,7 @@ public class RequestsServiceImpl implements RequestsService{
 			.map(MyImage::getUrl)
 			.toList();
 
-		return RequestsDetailResDto.toBuild(requests, referenceImageUrls, myImageUrls);
+		return RequestsDetailResDto.toBuild(requests, referenceImageUrls, myImageUrls, categoryNames, brandNames);
 	}
 
 	@Override
@@ -121,7 +146,8 @@ public class RequestsServiceImpl implements RequestsService{
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
 
 		requests.updateRequests(dto.getTitle(), dto.getDescription(), dto.getSituation(), dto.getBudget(),
-			dto.getBrand(), dto.getOtherRequirements());
+			dto.getOtherRequirements());
+
 
 		referenceImageRepository.deleteByRequestId(requestId);
 		List<ReferenceImage> referenceImages = dto.getReferenceImages().stream()
@@ -134,6 +160,18 @@ public class RequestsServiceImpl implements RequestsService{
 			.map(url -> MyImage.builder().url(url).requests(requests).build())
 			.toList();
 		myImageRepository.saveAll(myImages);
+
+		categoryRepository.deleteByRequestId(requestId);
+		List<Category> categories = dto.getCategory().stream()
+			.map(name -> Category.builder().name(name).requests(requests).build())
+			.toList();
+		categoryRepository.saveAll(categories);
+
+		brandRepository.deleteByRequestId(requestId);
+		List<Brand> brands = dto.getBrand().stream()
+			.map(name -> Brand.builder().name(name).requests(requests).build())
+			.toList();
+		brandRepository.saveAll(brands);
 	}
 
 	@Override
@@ -144,6 +182,8 @@ public class RequestsServiceImpl implements RequestsService{
 		referenceImageRepository.deleteByRequestId(requestId);
 		myImageRepository.deleteByRequestId(requestId);
 		requestsRepository.delete(requests);
+		categoryRepository.deleteByRequestId(requestId);
+		brandRepository.deleteByRequestId(requestId);
 	}
 
 	@Override

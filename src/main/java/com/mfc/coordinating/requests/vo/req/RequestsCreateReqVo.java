@@ -12,6 +12,7 @@ public class RequestsCreateReqVo {
 	List<String> referenceImages;
 	List<String> myImages;
 	Long budget;
-	String brand;
+	List<String> brand;
+	List<String> category;
 	String otherRequirements;
 }

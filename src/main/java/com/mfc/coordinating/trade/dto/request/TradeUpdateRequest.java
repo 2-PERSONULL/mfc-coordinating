@@ -7,6 +7,6 @@ import lombok.Getter;
 @Getter
 public class TradeUpdateRequest {
 	private LocalDate dueDate;
-	private Integer totalPrice;
+	private Double totalPrice;
 	private Long options;
 }

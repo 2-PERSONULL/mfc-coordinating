@@ -16,12 +16,14 @@ public class RequestsDetailResDto {
 	private String description;
 	private String situation;
 	private Long budget;
-	private String brand;
+	List<String> brand;
+	List<String> category;
 	private String otherRequirements;
 	private List<String> referenceImages;
 	private List<String> myImages;
 
-	public static RequestsDetailResDto toBuild(Requests requests, List<String> referenceImageUrls, List<String> myImageUrls) {
+	public static RequestsDetailResDto toBuild(Requests requests, List<String> referenceImageUrls, List<String> myImageUrls,
+		List<String> brand, List<String> category) {
 		return RequestsDetailResDto.builder()
 			.requestId(requests.getRequestId())
 			.userId(requests.getUserId())
@@ -29,10 +31,11 @@ public class RequestsDetailResDto {
 			.description(requests.getDescription())
 			.situation(requests.getSituation())
 			.budget(requests.getBudget())
-			.brand(requests.getBrand())
 			.otherRequirements(requests.getOtherRequirements())
 			.referenceImages(referenceImageUrls)
 			.myImages(myImageUrls)
+			.brand(brand)
+			.category(category)
 			.build();
 	}
 }

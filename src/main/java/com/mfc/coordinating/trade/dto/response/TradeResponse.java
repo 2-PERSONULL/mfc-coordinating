@@ -14,7 +14,7 @@ public class TradeResponse {
 	private String partnerId;
 	private String userId;
 	private Long options;
-	private Integer totalPrice;
+	private Double totalPrice;
 	private LocalDate dueDate;
 	private Long requestId;
 	private TradeStatus status;

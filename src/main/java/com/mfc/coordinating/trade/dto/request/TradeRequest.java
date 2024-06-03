@@ -9,7 +9,7 @@ public class TradeRequest {
 	private String partnerId;
 	private String userId;
 	private Long options;
-	private Integer totalPrice;
+	private Double totalPrice;
 	private LocalDate dueDate;
 	private Long requestId;
 }
