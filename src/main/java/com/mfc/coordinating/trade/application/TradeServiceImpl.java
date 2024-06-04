@@ -19,15 +19,19 @@ import lombok.RequiredArgsConstructor;
 public class TradeServiceImpl implements TradeService {
 
 	private final TradeRepository tradeRepository;
+	private final TradeEventProducer tradeEventProducer;
+
 
 	@Override
 	public TradeResponse createTrade(TradeRequest tradeRequest, String partnerUuid) {
 		if (!tradeRequest.getPartnerId().equals(partnerUuid)) {
 			throw new BaseException(BaseResponseStatus.UNAUTHORIZED_ACCESS);
 		}
-		Trade confirms = mapToEntity(tradeRequest);
-		Trade createdConfirms = tradeRepository.save(confirms);
-		return mapToResponse(createdConfirms);
+		Trade trade = mapToEntity(tradeRequest);
+		Trade createdTrade = tradeRepository.save(trade);
+		tradeEventProducer.sendTradeCreatedEvent(tradeRequest.getUserId(), tradeRequest.getPartnerId(),
+			tradeRequest.getTotalPrice(), createdTrade.getTradeId());
+		return mapToResponse(createdTrade);
 	}
 
 	@Override
@@ -54,20 +58,21 @@ public class TradeServiceImpl implements TradeService {
 
 		trade.updateTrade(updatedTradeRequest.getDueDate(), updatedTradeRequest.getTotalPrice(),
 			updatedTradeRequest.getOptions());
+
 		Trade updatedTrade = tradeRepository.save(trade);
 		mapToResponse(updatedTrade);
 	}
 
 	@Override
 	public void deleteTrade(Long id, String partnerUuid) {
-		Trade confirms = tradeRepository.findById(id)
+		Trade trade = tradeRepository.findById(id)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.CONFIRMS_NOT_FOUND));
 
-		if (!confirms.getPartnerId().equals(partnerUuid)) {
+		if (!trade.getPartnerId().equals(partnerUuid)) {
 			throw new BaseException(BaseResponseStatus.UNAUTHORIZED_ACCESS);
 		}
 
-		tradeRepository.delete(confirms);
+		tradeRepository.delete(trade);
 	}
 
 	@Override
@@ -80,6 +85,9 @@ public class TradeServiceImpl implements TradeService {
 		}
 		// dirty checking
 		trade.tradeSettled();
+		tradeEventProducer.sendTradeSettledEvent(trade.getPartnerId(), trade.getUserId(),
+			trade.getTotalPrice(), trade.getTradeId());
+
 	}
 
 	private Trade mapToEntity(TradeRequest tradeRequest) {
