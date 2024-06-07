@@ -12,4 +12,5 @@ public class RequestsHistoryListVo {
 	private LocalDate deadline;
 	private String status;
 	private String title;
+	private LocalDate createdDate;
 }

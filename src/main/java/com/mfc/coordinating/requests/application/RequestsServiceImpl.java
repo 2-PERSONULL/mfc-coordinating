@@ -45,9 +45,11 @@ public class RequestsServiceImpl implements RequestsService {
 	private final ReferenceImageRepository referenceImageRepository;
 	private final CategoryRepository categoryRepository;
 	private final BrandRepository brandRepository;
+	private final RequestsEventProducer requestsEventProducer;
 
 	@Override
 	public void createRequests(RequestsCreateReqDto requestsCreateReqDto, String uuid) {
+		requestsEventProducer.sendRequestsHistoryCreateEvent(uuid);
 		Requests requests = Requests.builder()
 			.userId(uuid)
 			.title(requestsCreateReqDto.getTitle())
@@ -87,14 +89,7 @@ public class RequestsServiceImpl implements RequestsService {
 		Page<RequestHistory> requestHistoryPage = requestHistoryRepository.findByUserId(uuid, pageable);
 
 		return requestHistoryPage.getContent().stream()
-			.map(history -> RequestsListResDto.builder()
-				.requestId(history.getRequestId())
-				.userId(history.getUserId())
-				.title(history.getTitle())
-				.partnerId(history.getPartnerId())
-				.deadline(history.getDeadline())
-				.status(history.getStatus())
-				.build())
+			.map(RequestHistory::toDto)
 			.toList();
 	}
 

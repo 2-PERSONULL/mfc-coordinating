@@ -15,9 +15,14 @@ public class RequestsListResDto {
 	private Long id;
 	private Long requestId;
 	private String userId;
+	private String userImageUrl;
+	private String userNickName;
+	private String userGender;
+	private int userAge;
 	private String partnerId;
 	private String title;
 	private LocalDate deadline;
+	private LocalDate createdDate;
 	private RequestsStates status;
 
 	public void setRequestId(Long requestId) {

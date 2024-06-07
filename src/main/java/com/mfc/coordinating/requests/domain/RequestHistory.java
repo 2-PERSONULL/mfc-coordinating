@@ -2,58 +2,79 @@ package com.mfc.coordinating.requests.domain;
 
 import java.time.LocalDate;
 
-import com.mfc.coordinating.common.entity.BaseEntity;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import com.mfc.coordinating.requests.dto.res.RequestsListResDto;
 import com.mfc.coordinating.requests.enums.RequestsStates;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
+@Document(collection = "request_history")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "request_history")
-public class RequestHistory extends BaseEntity {
+public class RequestHistory {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private String id;
 
-	@Column(nullable = false)
 	private Long requestId;
 
-	@Column(nullable = false)
 	private String userId;
 
-	@Column(nullable = false)
 	private String partnerId;
 
-	@Column(nullable = false)
 	private LocalDate deadline;
 
-	@Column(nullable = false)
+	private LocalDate createdDate;
+
 	private RequestsStates status;
 
-	@Column(nullable = false)
 	private String title;
 
+	private String userImageUrl;
+
+	private String userNickName;
+
+	private String userGender;
+
+	private int userAge;
+
 	@Builder
-	public RequestHistory(Long requestId, String userId, String partnerId, LocalDate deadline, RequestsStates status, String title) {
+	public RequestHistory(Long requestId, String userId, String partnerId, LocalDate deadline, RequestsStates status, String title,
+		String userImageUrl, String userNickName, String userGender, int userAge) {
 		this.requestId = requestId;
 		this.userId = userId;
 		this.partnerId = partnerId;
 		this.deadline = deadline;
 		this.status = status;
 		this.title = title;
+		this.userImageUrl = userImageUrl;
+		this.userNickName = userNickName;
+		this.userGender = userGender;
+		this.userAge = userAge;
+		this.createdDate = LocalDate.now();
 	}
 
 	public void updateStatus(RequestsStates status) {
 		this.status = status;
+	}
+
+	public RequestsListResDto toDto() {
+		return RequestsListResDto.builder()
+			.requestId(this.requestId)
+			.userId(this.userId)
+			.userImageUrl(this.userImageUrl)
+			.userNickName(this.userNickName)
+			.userGender(this.userGender)
+			.userAge(this.userAge)
+			.partnerId(this.partnerId)
+			.title(this.title)
+			.deadline(this.deadline)
+			.createdDate(this.createdDate)
+			.status(this.status)
+			.build();
 	}
 }
