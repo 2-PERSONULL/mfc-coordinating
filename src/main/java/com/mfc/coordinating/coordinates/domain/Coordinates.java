@@ -1,15 +1,10 @@
 package com.mfc.coordinating.coordinates.domain;
 
-import com.mfc.coordinating.requests.domain.RequestHistory;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,7 +22,7 @@ public class Coordinates {
 	private String category; // list로 만들기
 
 	@Column(nullable = false)
-	private String brand;
+	private String brand; // list로 만들기
 
 	@Column(nullable = false)
 	private Double budget;
@@ -39,11 +34,7 @@ public class Coordinates {
 	private String comment;
 
 	@Column(nullable = false)
-	private Long requestId;
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id")
-	private RequestHistory requestHistory;
+	private Long requestId; // 히스토리 아이디로 변경
 
 	@Builder
 	public Coordinates(String category, String brand,

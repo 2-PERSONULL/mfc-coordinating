@@ -41,7 +41,7 @@ public class Requests extends BaseEntity {
 	@Column(nullable = false)
 	private Long budget;
 
-	@Column(name = "other_requirements")
+	@Column(nullable = false)
 	private String otherRequirements;
 
 	@Builder
