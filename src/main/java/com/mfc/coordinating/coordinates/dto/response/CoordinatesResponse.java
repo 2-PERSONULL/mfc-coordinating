@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.mfc.coordinating.coordinates.domain.Coordinates;
 import com.mfc.coordinating.coordinates.domain.CoordinatesImage;
+import com.mfc.coordinating.coordinates.enums.CoordinateCategory;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -12,13 +13,13 @@ import lombok.Getter;
 @Builder
 public class CoordinatesResponse {
 	private Long id;
-	private String category;
+	private CoordinateCategory category;
 	private String brand;
 	private Double budget;
 	private String url;
 	private String comment;
 	private List<String> images;
-	private Long requestId;
+	private Long requestHistoryId;
 
 	public static CoordinatesResponse from(Coordinates coordinates, List<CoordinatesImage> coordinatesImages) {
 		return CoordinatesResponse.builder()
@@ -31,7 +32,7 @@ public class CoordinatesResponse {
 			.images(coordinatesImages.stream()
 				.map(CoordinatesImage::getImageUrl)
 				.toList())
-			.requestId(coordinates.getRequestId())
+			.requestHistoryId(coordinates.getRequestHistoryId())
 			.build();
 	}
 }

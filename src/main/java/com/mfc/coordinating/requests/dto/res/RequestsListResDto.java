@@ -17,7 +17,7 @@ public class RequestsListResDto {
 	private String userId;
 	private String userImageUrl;
 	private String userNickName;
-	private String userGender;
+	private Short userGender;
 	private int userAge;
 	private String partnerId;
 	private String title;

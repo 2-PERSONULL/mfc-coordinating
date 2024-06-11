@@ -44,22 +44,26 @@ public class Trade extends BaseEntity {
 	@Column(name = "due_date", nullable = false)
 	private LocalDate dueDate;
 	
-	@Column(name = "request_id", nullable = false)
-	private Long requestId;
+	@Column(name = "request_history_id", nullable = false)
+	private Long requestHistoryId;
 
 	@Column(name = "status", nullable = false)
 	private TradeStatus status;
 
+	@Column(nullable = false)
+	private Boolean isCoordinatesSubmitted;
+
 	@Builder
-	public Trade(String partnerId, String userId, Long options, Double totalPrice, LocalDate dueDate, Long requestId,
-		TradeStatus status) {
+	public Trade(String partnerId, String userId, Long options, Double totalPrice, LocalDate dueDate, Long requestHistoryId,
+		TradeStatus status, boolean isCoordinatesSubmitted) {
 		this.partnerId = partnerId;
 		this.userId = userId;
 		this.options = options;
 		this.totalPrice = totalPrice;
 		this.dueDate = dueDate;
-		this.requestId = requestId;
+		this.requestHistoryId = requestHistoryId;
 		this.status = TradeStatus.TRADE_PAID;
+		this.isCoordinatesSubmitted = false;
 	}
 
 	public void updateTrade(LocalDate dueDate, Double totalPrice, Long options) {
@@ -70,5 +74,13 @@ public class Trade extends BaseEntity {
 
 	public void tradeSettled() {
 		this.status = TradeStatus.TRADE_COMPLETED;
+	}
+
+	public void tradeExpired() {
+		this.status = TradeStatus.TRADE_EXPIRED;
+	}
+
+	public void setCoordinatesSubmitted() {
+		this.isCoordinatesSubmitted = true;
 	}
 }

@@ -10,12 +10,14 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.mfc.coordinating.requests.domain.Requests;
+import com.mfc.coordinating.requests.dto.res.MyRequestListResponse;
 
 @Repository
 public interface RequestsRepository extends JpaRepository<Requests, Long> {
 
-	@Query("SELECT r.requestId, r.title, r.description FROM Requests r WHERE r.userId = :userId")
-	Page<Requests> findByUserId(@Param("userId") String userId, Pageable pageable);
+	@Query("SELECT new com.mfc.coordinating.requests.dto.res.MyRequestListResponse(r.requestId, r.title) FROM Requests r WHERE r.userId = :userId")
+	Page<MyRequestListResponse> findByUserId(@Param("userId") String userId, Pageable pageable);
+
 
 	Optional<Requests> findByRequestId(Long requestId);
 

@@ -16,6 +16,7 @@ public class TradeResponse {
 	private Long options;
 	private Double totalPrice;
 	private LocalDate dueDate;
-	private Long requestId;
+	private Long requestHistoryId;
 	private TradeStatus status;
+	private Boolean isCoordinatesSubmitted;
 }
