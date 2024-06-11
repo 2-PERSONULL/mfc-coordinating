@@ -1,7 +1,11 @@
 package com.mfc.coordinating.coordinates.domain;
 
+import com.mfc.coordinating.coordinates.enums.CoordinateCategory;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -18,11 +22,12 @@ public class Coordinates {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private String category; // list로 만들기
+	private CoordinateCategory category;
 
 	@Column(nullable = false)
-	private String brand; // list로 만들기
+	private String brand;
 
 	@Column(nullable = false)
 	private Double budget;
@@ -34,20 +39,20 @@ public class Coordinates {
 	private String comment;
 
 	@Column(nullable = false)
-	private Long requestId; // 히스토리 아이디로 변경
+	private Long requestHistoryId; // 히스토리 아이디로 변경
 
 	@Builder
-	public Coordinates(String category, String brand,
-		Double budget, String url, String comment, Long requestId) {
+	public Coordinates(CoordinateCategory category, String brand,
+		Double budget, String url, String comment, Long requestHistoryId) {
 		this.category = category;
 		this.brand = brand;
 		this.budget = budget;
 		this.url = url;
 		this.comment = comment;
-		this.requestId = requestId;
+		this.requestHistoryId = requestHistoryId;
 	}
 
-	public void update(String category, String brand,
+	public void update(CoordinateCategory category, String brand,
 		Double budget, String url, String comment) {
 		this.category = category;
 		this.brand = brand;

@@ -1,5 +1,6 @@
 package com.mfc.coordinating.trade.application;
 
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -90,6 +91,24 @@ public class TradeServiceImpl implements TradeService {
 
 	}
 
+	@KafkaListener(topics = "coordinates-submitted-topic", groupId = "trade-coordinates-submitted-group")
+	public void handleCoordinatesSubmitted(Long requestHistoryId) {
+		Trade trade = tradeRepository.findByRequestHistoryId(requestHistoryId)
+			.orElseThrow(() -> new BaseException(BaseResponseStatus.CONFIRMS_NOT_FOUND));
+
+		trade.setCoordinatesSubmitted();
+		tradeRepository.save(trade);
+	}
+
+	@Override
+	public void handleTradeExpired(Long tradeId) {
+		Trade trade = tradeRepository.findById(tradeId)
+			.orElseThrow(() -> new BaseException(BaseResponseStatus.CONFIRMS_NOT_FOUND));
+		if (!trade.getIsCoordinatesSubmitted()){
+			trade.tradeExpired();
+		}
+	}
+
 	private Trade mapToEntity(TradeRequest tradeRequest) {
 		return Trade.builder()
 			.partnerId(tradeRequest.getPartnerId())
@@ -97,7 +116,7 @@ public class TradeServiceImpl implements TradeService {
 			.options(tradeRequest.getOptions())
 			.totalPrice(tradeRequest.getTotalPrice())
 			.dueDate(tradeRequest.getDueDate())
-			.requestId(tradeRequest.getRequestId())
+			.requestHistoryId(tradeRequest.getRequestHistoryId())
 			.build();
 	}
 
@@ -109,8 +128,9 @@ public class TradeServiceImpl implements TradeService {
 			.options(trade.getOptions())
 			.totalPrice(trade.getTotalPrice())
 			.dueDate(trade.getDueDate())
-			.requestId(trade.getRequestId())
+			.requestHistoryId(trade.getRequestHistoryId())
 			.status(trade.getStatus())
+			.isCoordinatesSubmitted(trade.getIsCoordinatesSubmitted())
 			.build();
 	}
 }

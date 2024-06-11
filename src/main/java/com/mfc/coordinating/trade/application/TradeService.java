@@ -10,4 +10,6 @@ public interface TradeService {
 	void updateTrade(Long id, TradeUpdateRequest updatedTradeRequest, String partnerUuid);
 	void deleteTrade(Long id, String partnerUuid);
 	void updateTradeStatus(Long id, String userUuid);
+
+	void handleTradeExpired(Long tradeId);
 }
