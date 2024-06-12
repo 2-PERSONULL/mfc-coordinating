@@ -12,6 +12,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mfc.coordinating.common.exception.BaseException;
 import com.mfc.coordinating.common.response.BaseResponseStatus;
 import com.mfc.coordinating.requests.domain.Brand;
@@ -191,43 +193,58 @@ public class RequestsServiceImpl implements RequestsService {
 
 	@KafkaListener(topics = "user-info-response", containerFactory = "kafkaListenerContainerFactory")
 	public void handleUserInfoResponse(String message) {
-		// 메시지를 파싱하여 필요한 정보 추출
-		// 예시: "RequestId: 123, UserId: user123, PartnerId: partner456, Deadline: 2023-06-30, UserImageUrl: http://example.com/image.jpg, UserNickName: John, UserGender: 0, UserBirth: 1990-01-01"
-		String[] parts = message.split(", ");
-		Long requestId = Long.parseLong(parts[0].split(": ")[1]);
-		String userId = parts[1].split(": ")[1];
-		String partnerId = parts[2].split(": ")[1];
-		LocalDate deadline = LocalDate.parse(parts[3].split(": ")[1]);
-		String userImageUrl = parts[4].split(": ")[1];
-		String userNickName = parts[5].split(": ")[1];
-		Short userGender = Short.parseShort(parts[6].split(": ")[1]);
-		LocalDate userBirth = LocalDate.parse(parts[7].split(": ")[1]);
+		try {
+			// ObjectMapper를 사용하여 JSON 메시지 파싱
+			ObjectMapper objectMapper = new ObjectMapper();
+			JsonNode jsonNode = objectMapper.readTree(message);
 
-		// requestId를 기반으로 Requests 엔티티 조회
-		Requests requests = requestsRepository.findByRequestId(requestId)
-			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
+			Long requestId = jsonNode.get("requestId").asLong();
+			String userId = jsonNode.get("userId").asText();
+			String partnerId = jsonNode.get("partnerId").asText();
+			LocalDate deadline = LocalDate.parse(jsonNode.get("deadline").asText());
+			String userImageUrl = jsonNode.get("userImageUrl").asText();
+			String userNickName = jsonNode.get("userNickName").asText();
+			Short userGender = jsonNode.get("userGender").shortValue();
+			LocalDate userBirth = LocalDate.parse(jsonNode.get("userBirth").asText());
 
-		// RequestHistory 엔티티 생성
-		RequestHistory requestHistory = RequestHistory.builder()
-			.requestId(requestId)
-			.userId(userId)
-			.partnerId(partnerId)
-			.deadline(deadline)
-			.status(RequestsStates.NONERESPONSE)
-			.title(requests.getTitle())
-			.userImageUrl(userImageUrl)
-			.userNickName(userNickName)
-			.userGender(userGender)
-			.userAge(calculateAge(userBirth))
-			.build();
+			// requestId를 기반으로 Requests 엔티티 조회
+			Requests requests = requestsRepository.findByRequestId(requestId)
+				.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
 
-		// RequestHistory 엔티티 저장
-		requestHistoryRepository.save(requestHistory);
+			// RequestHistory 엔티티 생성
+			RequestHistory requestHistory = RequestHistory.builder()
+				.requestId(requestId)
+				.userId(userId)
+				.partnerId(partnerId)
+				.deadline(deadline)
+				.status(RequestsStates.NONERESPONSE)
+				.title(requests.getTitle())
+				.userImageUrl(userImageUrl)
+				.userNickName(userNickName)
+				.userGender(userGender)
+				.userAge(calculateAge(userBirth))
+				.build();
+
+			// RequestHistory 엔티티 저장
+			try {
+				requestHistoryRepository.save(requestHistory);
+			} catch (Exception e) {
+				// 예외 처리 로직 추가
+				e.printStackTrace();
+				// 필요한 경우 예외를 throw하거나 다른 방식으로 처리할 수 있습니다.
+				throw new RuntimeException("Failed to save RequestHistory", e);
+			}
+		} catch (Exception e) {
+			// 예외 처리 로직 추가
+			e.printStackTrace();
+			// 필요한 경우 예외를 throw하거나 다른 방식으로 처리할 수 있습니다.
+			throw new RuntimeException("Failed to handle user info response", e);
+		}
 	}
 
-	private int calculateAge(LocalDate birth) {
+	private int calculateAge(LocalDate birthDate) {
 		LocalDate currentDate = LocalDate.now();
-		return Period.between(birth, currentDate).getYears();
+		return Period.between(birthDate, currentDate).getYears();
 	}
 
 	@Override

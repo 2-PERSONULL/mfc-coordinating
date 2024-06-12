@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RequestHistory {
 	@Id
-	private Long id;
+	private String id;
 
 	private Long requestId;
 
