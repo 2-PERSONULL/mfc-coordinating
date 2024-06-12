@@ -19,6 +19,7 @@ import com.mfc.coordinating.common.response.BaseResponse;
 import com.mfc.coordinating.requests.application.RequestsService;
 import com.mfc.coordinating.requests.dto.req.RequestsCreateReqDto;
 import com.mfc.coordinating.requests.dto.req.RequestsUpdateReqDto;
+import com.mfc.coordinating.requests.dto.res.MyRequestListResponse;
 import com.mfc.coordinating.requests.dto.res.RequestsListResDto;
 import com.mfc.coordinating.requests.enums.RequestsListSortType;
 import com.mfc.coordinating.requests.vo.req.RequestsCreateReqVo;
@@ -49,6 +50,19 @@ public class RequestsController {
 		requestsService.createRequests(modelMapper.map(vo, RequestsCreateReqDto.class), uuid);
 
 		return new BaseResponse<>();
+	}
+
+	@GetMapping("/my-requests")
+	@Operation(summary = "작성한 요청서 목록 조회", description = "유저가 작성한 코디 요청서 목록을 조회합니다.")
+	public BaseResponse<?> getRequests(
+		@RequestHeader String uuid,
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "30") int pageSize,
+		@RequestParam(defaultValue = "LATEST") RequestsListSortType sortType){
+
+		List<MyRequestListResponse> requestsList = requestsService.getRequestsList(page, pageSize, sortType, uuid);
+
+		return new BaseResponse<>(requestsList);
 	}
 
 	@GetMapping("/userlist")

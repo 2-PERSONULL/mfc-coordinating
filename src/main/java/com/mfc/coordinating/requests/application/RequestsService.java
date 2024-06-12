@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.mfc.coordinating.requests.dto.req.RequestsCreateReqDto;
 import com.mfc.coordinating.requests.dto.req.RequestsUpdateReqDto;
+import com.mfc.coordinating.requests.dto.res.MyRequestListResponse;
 import com.mfc.coordinating.requests.dto.res.RequestsDetailResDto;
 import com.mfc.coordinating.requests.dto.res.RequestsListResDto;
 import com.mfc.coordinating.requests.enums.RequestsListSortType;
@@ -13,7 +14,7 @@ public interface RequestsService {
 
 	void createRequests(RequestsCreateReqDto requestsCreateReqDto, String uuid);
 
-	List<RequestsListResDto> getRequestsList(int page, int pageSize, RequestsListSortType sortType, String uuid);
+	List<MyRequestListResponse> getRequestsList(int page, int pageSize, RequestsListSortType sortType, String uuid);
 
 	List<RequestsListResDto> getRequestsListByUser(int page, int pageSize, RequestsListSortType sortType, String uuid);
 

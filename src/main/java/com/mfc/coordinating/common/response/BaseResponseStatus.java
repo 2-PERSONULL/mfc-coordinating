@@ -59,6 +59,7 @@ public enum BaseResponseStatus {
 	PASSWORD_CONTAIN_NUM_FAILED(HttpStatus.BAD_REQUEST, false, 2109, "휴대폰 번호를 포함한 비밀번호 입니다."),
 	PASSWORD_CONTAIN_EMAIL_FAILED(HttpStatus.BAD_REQUEST, false, 2110, "이메일이 포함된 비밀번호 입니다."),
 	DORMANCY_MEMBERS(HttpStatus.FORBIDDEN, false, 2111, "휴면 회원입니다."),
+	NON_SELF_MEMBERS(HttpStatus.FORBIDDEN, false, 2112, "파트너와 유저아이디가 같을 수 없습니다."),
 
 	// Address
 	NO_EXIST_ADDRESS(HttpStatus.NOT_FOUND, false, 2300, "존재하지 않는 주소입니다."),

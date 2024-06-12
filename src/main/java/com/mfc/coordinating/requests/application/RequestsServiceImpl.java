@@ -1,12 +1,15 @@
 package com.mfc.coordinating.requests.application;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 import com.mfc.coordinating.common.exception.BaseException;
@@ -19,6 +22,7 @@ import com.mfc.coordinating.requests.domain.RequestHistory;
 import com.mfc.coordinating.requests.domain.Requests;
 import com.mfc.coordinating.requests.dto.req.RequestsCreateReqDto;
 import com.mfc.coordinating.requests.dto.req.RequestsUpdateReqDto;
+import com.mfc.coordinating.requests.dto.res.MyRequestListResponse;
 import com.mfc.coordinating.requests.dto.res.RequestsDetailResDto;
 import com.mfc.coordinating.requests.dto.res.RequestsListResDto;
 import com.mfc.coordinating.requests.enums.RequestsListSortType;
@@ -49,7 +53,6 @@ public class RequestsServiceImpl implements RequestsService {
 
 	@Override
 	public void createRequests(RequestsCreateReqDto requestsCreateReqDto, String uuid) {
-		requestsEventProducer.sendRequestsHistoryCreateEvent(uuid);
 		Requests requests = Requests.builder()
 			.userId(uuid)
 			.title(requestsCreateReqDto.getTitle())
@@ -94,17 +97,9 @@ public class RequestsServiceImpl implements RequestsService {
 	}
 
 	@Override
-	public List<RequestsListResDto> getRequestsList(int page, int pageSize, RequestsListSortType sortType, String uuid) {
+	public List<MyRequestListResponse> getRequestsList(int page, int pageSize, RequestsListSortType sortType, String uuid) {
 		Pageable pageable = getPageable(page, pageSize, sortType);
-
-		Page<Requests> requestsPage = requestsRepository.findByUserId(uuid, pageable);
-
-		return requestsPage.getContent().stream()
-			.map(request -> RequestsListResDto.builder()
-				.requestId(request.getRequestId())
-				.title(request.getTitle())
-				.build())
-			.toList();
+		return requestsRepository.findByUserId(uuid, pageable).getContent();
 	}
 
 	@Override
@@ -142,7 +137,6 @@ public class RequestsServiceImpl implements RequestsService {
 
 		requests.updateRequests(dto.getTitle(), dto.getDescription(), dto.getSituation(), dto.getBudget(),
 			dto.getOtherRequirements());
-
 
 		referenceImageRepository.deleteByRequestId(requestId);
 		List<ReferenceImage> referenceImages = dto.getReferenceImages().stream()
@@ -187,16 +181,53 @@ public class RequestsServiceImpl implements RequestsService {
 		Requests requests = requestsRepository.findByRequestIdAndUserId(requestId, uuid)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
 
+		if (partnerId.equals(uuid)) {
+			throw new BaseException(BaseResponseStatus.NON_SELF_MEMBERS);
+		}
+
+		// Kafka를 통해 유저 정보 요청 이벤트 발행
+		requestsEventProducer.sendRequestsHistoryCreateEvent(requestId, uuid, partnerId, deadline);
+	}
+
+	@KafkaListener(topics = "user-info-response", containerFactory = "kafkaListenerContainerFactory")
+	public void handleUserInfoResponse(String message) {
+		// 메시지를 파싱하여 필요한 정보 추출
+		// 예시: "RequestId: 123, UserId: user123, PartnerId: partner456, Deadline: 2023-06-30, UserImageUrl: http://example.com/image.jpg, UserNickName: John, UserGender: 0, UserBirth: 1990-01-01"
+		String[] parts = message.split(", ");
+		Long requestId = Long.parseLong(parts[0].split(": ")[1]);
+		String userId = parts[1].split(": ")[1];
+		String partnerId = parts[2].split(": ")[1];
+		LocalDate deadline = LocalDate.parse(parts[3].split(": ")[1]);
+		String userImageUrl = parts[4].split(": ")[1];
+		String userNickName = parts[5].split(": ")[1];
+		Short userGender = Short.parseShort(parts[6].split(": ")[1]);
+		LocalDate userBirth = LocalDate.parse(parts[7].split(": ")[1]);
+
+		// requestId를 기반으로 Requests 엔티티 조회
+		Requests requests = requestsRepository.findByRequestId(requestId)
+			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
+
+		// RequestHistory 엔티티 생성
 		RequestHistory requestHistory = RequestHistory.builder()
 			.requestId(requestId)
-			.title(requests.getTitle())
-			.userId(uuid)
+			.userId(userId)
 			.partnerId(partnerId)
 			.deadline(deadline)
-			.status(states)
+			.status(RequestsStates.NONERESPONSE)
+			.title(requests.getTitle())
+			.userImageUrl(userImageUrl)
+			.userNickName(userNickName)
+			.userGender(userGender)
+			.userAge(calculateAge(userBirth))
 			.build();
 
+		// RequestHistory 엔티티 저장
 		requestHistoryRepository.save(requestHistory);
+	}
+
+	private int calculateAge(LocalDate birth) {
+		LocalDate currentDate = LocalDate.now();
+		return Period.between(birth, currentDate).getYears();
 	}
 
 	@Override
@@ -219,9 +250,9 @@ public class RequestsServiceImpl implements RequestsService {
 
 	@Override
 	public void updateAcceptRequests(Long historyId, String uuid) {
-		String partnerId = uuid;
 		RequestsStates states = RequestsStates.RESPONSEACCEPT;
-		RequestHistory requestHistory = requestHistoryRepository.findById(historyId)
+		Optional<RequestHistory> optionalRequestHistory = requestHistoryRepository.findById(historyId);
+		RequestHistory requestHistory = optionalRequestHistory
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
 
 		requestHistory.updateStatus(states);
@@ -229,9 +260,9 @@ public class RequestsServiceImpl implements RequestsService {
 
 	@Override
 	public void updateRejectRequests(Long historyId, String uuid) {
-		String partnerId = uuid;
 		RequestsStates states = RequestsStates.RESPONSEREJECT;
-		RequestHistory requestHistory = requestHistoryRepository.findById(historyId)
+		Optional<RequestHistory> optionalRequestHistory = requestHistoryRepository.findById(historyId);
+		RequestHistory requestHistory = optionalRequestHistory
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
 
 		requestHistory.updateStatus(states);

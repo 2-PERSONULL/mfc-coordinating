@@ -33,7 +33,6 @@ public class Category {
 	@JoinColumn(name = "request_id")
 	private Requests requests;
 
-
 	@Builder
 	public Category(String name, Requests requests) {
 		this.name = name;

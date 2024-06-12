@@ -1,5 +1,7 @@
 package com.mfc.coordinating.coordinates.presentation;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,10 +26,10 @@ public class CoordinatesController {
 	private final CoordinatesService coordinatesService;
 
 	@PostMapping
-	@Operation(summary = "코디 생성", description = "새로운 코디를 생성합니다.")
-	public BaseResponse<Long> createCoordinates(@RequestBody CoordinatesRequest request) {
-		Long coordinatesId = coordinatesService.createCoordinates(request);
-		return new BaseResponse<>(coordinatesId);
+	@Operation(summary = "코디 생성", description = "새로운 코디를 여러 개 생성합니다.")
+	public BaseResponse<List<Long>> createCoordinates(@RequestBody List<CoordinatesRequest> requests) {
+		List<Long> coordinatesIds = coordinatesService.createCoordinates(requests);
+		return new BaseResponse<>(coordinatesIds);
 	}
 
 	@GetMapping("/{id}")
@@ -43,6 +45,7 @@ public class CoordinatesController {
 		coordinatesService.updateCoordinates(id, request);
 		return new BaseResponse<>();
 	}
+
 	@DeleteMapping("/{id}")
 	@Operation(summary = "코디 삭제", description = "코디를 삭제합니다.")
 	public BaseResponse<Void> deleteCoordinates(@PathVariable Long id) {
