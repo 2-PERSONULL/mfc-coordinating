@@ -1,8 +1,9 @@
 package com.mfc.coordinating.requests.dto.res;
 
+import java.time.LocalDate;
 import java.util.List;
 
-import com.mfc.coordinating.requests.domain.Requests;
+import com.mfc.coordinating.requests.domain.Requests.RequestPartner;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -15,27 +16,16 @@ public class RequestsDetailResDto {
 	private String title;
 	private String description;
 	private String situation;
-	private Long budget;
-	List<String> brand;
-	List<String> category;
+	private String budget;
 	private String otherRequirements;
-	private List<String> referenceImages;
-	private List<String> myImages;
-
-	public static RequestsDetailResDto toBuild(Requests requests, List<String> referenceImageUrls, List<String> myImageUrls,
-		List<String> brand, List<String> category) {
-		return RequestsDetailResDto.builder()
-			.requestId(requests.getRequestId())
-			.userId(requests.getUserId())
-			.title(requests.getTitle())
-			.description(requests.getDescription())
-			.situation(requests.getSituation())
-			.budget(requests.getBudget())
-			.otherRequirements(requests.getOtherRequirements())
-			.referenceImages(referenceImageUrls)
-			.myImages(myImageUrls)
-			.brand(brand)
-			.category(category)
-			.build();
-	}
+	private LocalDate createdDate;
+	private String userImageUrl;
+	private String userNickName;
+	private Short userGender;
+	private int userAge;
+	private List<RequestPartner> partner;
+	private List<String> brandIds;
+	private List<String> categoryIds;
+	private List<String> referenceImageUrls;
+	private List<String> myImageUrls;
 }
