@@ -109,7 +109,8 @@ public class Requests {
 	private List<String> myImageUrls = new ArrayList<>();
 
 	@Builder
-	public Requests(Long requestId, String userId, String title, String description, String situation, String budget, String otherRequirements, String userImageUrl, String userNickName, Short userGender, int userAge, List<String> brandIds, List<String> categoryIds, List<String> referenceImageUrls, List<String> myImageUrls) {
+	public Requests(String id, Long requestId, String userId, String title, String description, String situation, String budget, String otherRequirements, String userImageUrl, String userNickName, Short userGender, int userAge, List<String> brandIds, List<String> categoryIds, List<String> referenceImageUrls, List<String> myImageUrls) {
+		this.id = id;
 		this.requestId = requestId;
 		this.userId = userId;
 		this.title = title;

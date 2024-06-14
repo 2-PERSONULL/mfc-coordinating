@@ -308,17 +308,13 @@
 package com.mfc.coordinating.requests.application;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -327,6 +323,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mfc.coordinating.common.exception.BaseException;
 import com.mfc.coordinating.common.response.BaseResponseStatus;
 import com.mfc.coordinating.requests.domain.Requests;
+import com.mfc.coordinating.requests.dto.kafka.AuthInfoResponseDto;
+import com.mfc.coordinating.requests.dto.kafka.UserInfoResponseDto;
 import com.mfc.coordinating.requests.dto.req.RequestsCreateReqDto;
 import com.mfc.coordinating.requests.dto.req.RequestsUpdateReqDto;
 import com.mfc.coordinating.requests.dto.res.MyRequestListResponse;
@@ -347,53 +345,32 @@ import lombok.extern.slf4j.Slf4j;
 public class RequestsServiceImpl implements RequestsService {
 	private final RequestsRepository requestsRepository;
 	private final RequestsEventProducer requestsEventProducer;
+	private final RequestsEventConsumer requestsEventConsumer;
 	private final ObjectMapper objectMapper;
 	private final RequestMapper requestMapper;
 
-	@Transactional
 	@Override
 	public void createRequests(RequestsCreateReqDto requestsCreateReqDto, String uuid) {
-		// 유저 서비스에서 유저 이미지와 닉네임 가져오기
-		CompletableFuture<SendResult<String, String>> userInfoFuture = requestsEventProducer.requestUserInfo(uuid);
-		String userInfoResponse = null;
-		try {
-			userInfoResponse = userInfoFuture.get().getProducerRecord().value();
-			if (userInfoResponse == null) {
-				log.error("User info response is null");
-				throw new RuntimeException("Failed to get user info response");
-			}
-		} catch (InterruptedException | ExecutionException e) {
-			log.error("Failed to get user info response", e);
-			throw new RuntimeException("Failed to get user info response", e);
-		}
-		JsonNode userInfoNode = parseJson(userInfoResponse);
-		String userImageUrl = userInfoNode.get("userImageUrl").asText();
-		String userNickName = userInfoNode.get("userNickName").asText();
+		// 유저 정보 요청 이벤트 발생
+		requestsEventProducer.requestUserInfo(uuid);
 
-		// Auth 서비스에서 성별과 생년월일 가져오기
-		CompletableFuture<SendResult<String, String>> authInfoFuture = requestsEventProducer.requestAuthInfo(uuid);
-		String authInfoResponse = null;
-		try {
-			authInfoResponse = authInfoFuture.get().getProducerRecord().value();
-			if (authInfoResponse == null) {
-				log.error("Auth info response is null");
-				throw new RuntimeException("Failed to get auth info response");
-			}
-		} catch (InterruptedException | ExecutionException e) {
-			log.error("Failed to get auth info response", e);
-			throw new RuntimeException("Failed to get auth info response", e);
-		}
-		JsonNode authInfoNode = parseJson(authInfoResponse);
-		Short userGender = authInfoNode.get("userGender").shortValue();
-		int userAge = calculateAge(LocalDate.parse(authInfoNode.get("userBirth").asText()));
+		// Auth 정보 요청 이벤트 발생
+		requestsEventProducer.requestAuthInfo(uuid);
 
-		Requests requests = getRequests(requestsCreateReqDto, uuid, userImageUrl, userNickName, userGender, userAge);
+		// 유저 정보와 Auth 정보 추출
+		UserInfoResponseDto userInfoResponse = requestsEventConsumer.getUserInfoResponse();
+		AuthInfoResponseDto authInfoResponse = requestsEventConsumer.getAuthInfoResponse();
+
+		String userImageUrl = userInfoResponse.getUserImageUrl();
+		String userNickName = userInfoResponse.getUserNickName();
+		Short userGender = authInfoResponse.getUserGender();
+		int userAge = authInfoResponse.getUserAge();
+
+		// Requests 엔티티 생성 및 저장
+		Requests requests = getRequests(requestsCreateReqDto, uuid, userImageUrl,
+			userNickName, userGender, userAge);
+
 		requestsRepository.save(requests);
-	}
-
-	private int calculateAge(LocalDate birthDate) {
-		LocalDate currentDate = LocalDate.now();
-		return Period.between(birthDate, currentDate).getYears();
 	}
 
 	@Override
@@ -426,28 +403,6 @@ public class RequestsServiceImpl implements RequestsService {
 
 		return getRequestsListResDtos(requestsPage);
 	}
-
-	// @Override
-	// public List<RequestsListResDto> getRequestsListByUser(int page, int pageSize, RequestsListSortType sortType, String uuid) {
-	// 	Pageable pageable = getPageable(page, pageSize, sortType);
-	// 	Page<Requests> requestsPage = requestsRepository.findByUserId(uuid, pageable);
-	//
-	// 	return requestsPage.getContent()
-	// 		.stream()
-	// 		.map(requestMapper::toRequestsListResDto)
-	// 		.toList();
-	// }
-	//
-	// @Override
-	// public List<RequestsListResDto> getRequestsListPartner(int page, int pageSize, RequestsListSortType sortType, String uuid) {
-	// 	Pageable pageable = getPageable(page, pageSize, sortType);
-	// 	Page<Requests> requestsPage = requestsRepository.findByPartnerId(uuid, pageable);
-	//
-	// 	return requestsPage.getContent()
-	// 		.stream()
-	// 		.map(requestMapper::toRequestsListResDto)
-	// 		.toList();
-	// }
 
 	@Override
 	public RequestsDetailResDto getRequestsDetail(Long requestId) {
@@ -530,10 +485,8 @@ public class RequestsServiceImpl implements RequestsService {
 		}
 	}
 
-	private Long generateRequestId() {
-		// 요청 ID 생성 로직 구현
-		// 예시: 현재 시간을 기반으로 고유한 ID 생성
-		return System.currentTimeMillis();
+	private String generateRequestId() {
+		return String.valueOf(System.currentTimeMillis());
 	}
 
 	private static RequestsDetailResDto getRequestsDetailResDto(Requests requests) {
@@ -579,10 +532,14 @@ public class RequestsServiceImpl implements RequestsService {
 
 	private Requests getRequests(RequestsCreateReqDto requestsCreateReqDto, String uuid, String userImageUrl,
 		String userNickName, Short userGender, int userAge) {
-		return Requests.builder()
-			.requestId(generateRequestId())
+		Requests requests = Requests.builder()
+			.id(generateRequestId())
 			.userId(uuid)
 			.title(requestsCreateReqDto.getTitle())
+			.description(requestsCreateReqDto.getDescription())
+			.situation(requestsCreateReqDto.getSituation())
+			.budget(requestsCreateReqDto.getBudget())
+			.otherRequirements(requestsCreateReqDto.getOtherRequirements())
 			.userImageUrl(userImageUrl)
 			.userNickName(userNickName)
 			.userGender(userGender)
@@ -590,6 +547,9 @@ public class RequestsServiceImpl implements RequestsService {
 			.brandIds(requestsCreateReqDto.getBrandIds())
 			.categoryIds(requestsCreateReqDto.getCategoryIds())
 			.referenceImageUrls(requestsCreateReqDto.getReferenceImageUrls())
+			.myImageUrls(requestsCreateReqDto.getMyImageUrls())
 			.build();
+		return requests;
 	}
+
 }
