@@ -91,7 +91,7 @@ public interface RequestsService {
 	 * @param requestId 요청서 ID
 	 * @return 코디 요청서 상세 정보
 	 */
-	RequestsDetailResDto getRequestsDetail(Long requestId);
+	RequestsDetailResDto getRequestsDetail(String requestId);
 
 	/**
 	 * 코디 요청서 수정
@@ -100,7 +100,7 @@ public interface RequestsService {
 	 * @param requestId 요청서 ID
 	 * @param uuid 사용자 UUID
 	 */
-	void updateRequests(RequestsUpdateReqDto dto, Long requestId, String uuid);
+	void updateRequests(RequestsUpdateReqDto dto, String requestId, String uuid);
 
 	/**
 	 * 코디 요청서 삭제
@@ -108,7 +108,7 @@ public interface RequestsService {
 	 * @param requestId 요청서 ID
 	 * @param uuid 사용자 UUID
 	 */
-	void deleteRequests(Long requestId, String uuid);
+	void deleteRequests(String requestId, String uuid);
 
 	/**
 	 * 코디 요청서 제안
@@ -118,7 +118,7 @@ public interface RequestsService {
 	 * @param uuid 사용자 UUID
 	 * @param deadline 제안 마감일
 	 */
-	void updateProposal(Long requestId, String partnerId, String uuid, LocalDate deadline);
+	void updateProposal(String requestId, String partnerId, String uuid, LocalDate deadline);
 
 	/**
 	 * 파트너 응답 업데이트
@@ -128,6 +128,6 @@ public interface RequestsService {
 	 * @param uuid 사용자 UUID
 	 * @param status 응답 상태
 	 */
-	void updatePartnerResponse(Long requestId, String partnerId, String uuid, RequestsStates status);
+	void updatePartnerResponse(String requestId, String partnerId, String uuid, RequestsStates status);
 
 }

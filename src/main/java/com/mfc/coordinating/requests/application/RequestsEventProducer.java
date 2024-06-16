@@ -1,12 +1,8 @@
 package com.mfc.coordinating.requests.application;
 
-import java.util.concurrent.CompletableFuture;
-
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mfc.coordinating.requests.dto.kafka.RequestUserInfoDto;
 
 import lombok.RequiredArgsConstructor;
@@ -17,14 +13,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RequestsEventProducer {
 
-	private final KafkaTemplate<String, String> kafkaTemplate;
-	private final ObjectMapper objectMapper;
+	private final KafkaTemplate<String, Object> kafkaTemplate;
+
 
 	public void requestUserInfo(String uuid) {
 		try {
 			RequestUserInfoDto dto = RequestUserInfoDto.builder().userId(uuid).build();
-			String message = objectMapper.writeValueAsString(dto);
-			kafkaTemplate.send("user-info-request", message);
+			kafkaTemplate.send("user-info-request", dto);
 		} catch (Exception e) {
 			log.error("Failed to send user info request event", e);
 		}
@@ -33,8 +28,7 @@ public class RequestsEventProducer {
 	public void requestAuthInfo(String uuid) {
 		try {
 			RequestUserInfoDto dto = RequestUserInfoDto.builder().userId(uuid).build();
-			String message = objectMapper.writeValueAsString(dto);
-			kafkaTemplate.send("auth-info-request", message);
+			kafkaTemplate.send("auth-info-request", dto);
 		} catch (Exception e) {
 			log.error("Failed to send auth info request event", e);
 		}

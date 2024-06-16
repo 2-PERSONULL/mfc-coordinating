@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class CoordinatesServiceImpl implements CoordinatesService {
 	private final CoordinatesRepository coordinatesRepository;
 	private final CoordinatesImageRepository coordinatesImageRepository;
-	private final KafkaTemplate<String, String> kafkaTemplate;
+	private final KafkaTemplate<String, Object> kafkaTemplate;
 
 
 	@Override

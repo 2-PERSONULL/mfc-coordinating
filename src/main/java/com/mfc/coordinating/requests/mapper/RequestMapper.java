@@ -35,7 +35,6 @@ public class RequestMapper {
 		}
 
 		return RequestsListResDto.builder()
-			.id(requests.getId())
 			.requestId(requests.getRequestId())
 			.userId(requests.getUserId())
 			.userImageUrl(requests.getUserImageUrl())

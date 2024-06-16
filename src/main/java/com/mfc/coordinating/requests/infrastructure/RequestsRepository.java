@@ -12,16 +12,14 @@ import com.mfc.coordinating.requests.domain.Requests;
 
 @Repository
 public interface RequestsRepository extends MongoRepository<Requests, String> {
-
+	@Query("{'userId': ?0}")
 	Page<Requests> findByUserId(String userId, Pageable pageable);
 
-	Optional<Requests> findByRequestId(Long requestId);
+	Optional<Requests> findByRequestId(String requestId);
 
-	Optional<Requests> findByRequestIdAndUserId(Long requestId, String userId);
+	Optional<Requests> findByRequestIdAndUserId(String requestId, String userId);
 
 	@Query("{'partner.partnerId': ?0}")
 	Page<Requests> findByPartnerId(String partnerId, Pageable pageable);
 
-	@Query("{ '$or': [ { 'userId': ?0 }, { 'partners.partnerId': ?0 } ] }")
-	Page<Requests> findByUserOrPartnerId(String id, Pageable pageable);
 }

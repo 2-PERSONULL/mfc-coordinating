@@ -1,12 +1,14 @@
 package com.mfc.coordinating.requests.dto.kafka;
 
+import java.time.LocalDate;
+
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder
 public class AuthInfoResponseDto {
-	private Long userId;
+	private String userId;
 	private Short userGender;
-	private int userAge;
+	private LocalDate userBirth;
 }

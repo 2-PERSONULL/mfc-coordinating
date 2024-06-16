@@ -10,8 +10,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class RequestsListResDto {
-	private String id;
-	private Long requestId;
+	private String requestId;
 	private String userId;
 	private String userImageUrl;
 	private String userNickName;
