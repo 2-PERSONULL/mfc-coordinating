@@ -11,7 +11,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class RequestsDetailResDto {
-	private Long requestId;
+	private String requestId;
 	private String userId;
 	private String title;
 	private String description;

@@ -253,7 +253,7 @@ public class RequestsController {
 	@GetMapping("/{requestId}")
 	@Operation(summary = "코디 요청서 세부내용 조회", description = "유저가 작성한 코디 요청서 세부 내용을 조회합니다.")
 	public BaseResponse<RequestsDetailResDto> getRequestsDetail(
-		@PathVariable Long requestId
+		@PathVariable String requestId
 	) {
 		return new BaseResponse<>(requestsService.getRequestsDetail(requestId));
 	}
@@ -262,7 +262,7 @@ public class RequestsController {
 	@Operation(summary = "코디 요청서 수정", description = "유저가 작성한 코디 요청서 내용을 수정합니다.")
 	public BaseResponse<Void> updateRequests(
 		@RequestHeader String uuid,
-		@PathVariable Long requestId,
+		@PathVariable String requestId,
 		@RequestBody RequestsUpdateReqDto requestsUpdateReqDto
 	) {
 		requestsService.updateRequests(requestsUpdateReqDto, requestId, uuid);
@@ -273,7 +273,7 @@ public class RequestsController {
 	@Operation(summary = "코디 요청서 삭제", description = "유저가 작성한 코디 요청서를 삭제합니다.")
 	public BaseResponse<Void> deleteRequests(
 		@RequestHeader String uuid,
-		@PathVariable Long requestId
+		@PathVariable String requestId
 	) {
 		requestsService.deleteRequests(requestId, uuid);
 		return new BaseResponse<>();
@@ -283,7 +283,7 @@ public class RequestsController {
 	@Operation(summary = "코디 요청서 요청", description = "유저가 작성한 코디 요청서를 파트너에게 요청합니다.")
 	public BaseResponse<Void> updateProposal(
 		@RequestHeader String uuid,
-		@PathVariable Long requestId,
+		@PathVariable String requestId,
 		@PathVariable String partnerId,
 		@RequestParam LocalDate deadline
 	) {
@@ -295,7 +295,7 @@ public class RequestsController {
 	@Operation(summary = "파트너 응답 업데이트", description = "파트너가 코디 요청서에 대한 응답을 업데이트합니다.")
 	public BaseResponse<Void> updatePartnerResponse(
 		@RequestHeader String uuid,
-		@PathVariable Long requestId,
+		@PathVariable String requestId,
 		@PathVariable String partnerId,
 		@RequestParam RequestsStates status
 	) {

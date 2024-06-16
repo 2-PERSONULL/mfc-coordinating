@@ -8,6 +8,6 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 public class MyRequestListResponse {
-	private Long requestId;
+	private String requestId;
 	private String title;
 }

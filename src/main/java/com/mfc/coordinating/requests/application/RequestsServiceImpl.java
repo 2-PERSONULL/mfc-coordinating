@@ -318,7 +318,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mfc.coordinating.common.exception.BaseException;
 import com.mfc.coordinating.common.response.BaseResponseStatus;
@@ -364,7 +363,9 @@ public class RequestsServiceImpl implements RequestsService {
 		String userImageUrl = userInfoResponse.getUserImageUrl();
 		String userNickName = userInfoResponse.getUserNickName();
 		Short userGender = authInfoResponse.getUserGender();
-		int userAge = authInfoResponse.getUserAge();
+		LocalDate userBirth = authInfoResponse.getUserBirth();
+
+		int userAge = LocalDate.now().getYear() - userBirth.getYear();
 
 		// Requests 엔티티 생성 및 저장
 		Requests requests = getRequests(requestsCreateReqDto, uuid, userImageUrl,
@@ -405,7 +406,7 @@ public class RequestsServiceImpl implements RequestsService {
 	}
 
 	@Override
-	public RequestsDetailResDto getRequestsDetail(Long requestId) {
+	public RequestsDetailResDto getRequestsDetail(String requestId) {
 		Requests requests = requestsRepository.findByRequestId(requestId)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
 
@@ -414,7 +415,7 @@ public class RequestsServiceImpl implements RequestsService {
 
 	@Transactional
 	@Override
-	public void updateRequests(RequestsUpdateReqDto dto, Long requestId, String uuid) {
+	public void updateRequests(RequestsUpdateReqDto dto, String requestId, String uuid) {
 		Requests requests = requestsRepository.findByRequestIdAndUserId(requestId, uuid)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
 
@@ -433,7 +434,7 @@ public class RequestsServiceImpl implements RequestsService {
 
 	@Transactional
 	@Override
-	public void deleteRequests(Long requestId, String uuid) {
+	public void deleteRequests(String requestId, String uuid) {
 		Requests requests = requestsRepository.findByRequestIdAndUserId(requestId, uuid)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
 
@@ -442,7 +443,7 @@ public class RequestsServiceImpl implements RequestsService {
 
 	@Transactional
 	@Override
-	public void updateProposal(Long requestId, String partnerId, String uuid, LocalDate deadline) {
+	public void updateProposal(String requestId, String partnerId, String uuid, LocalDate deadline) {
 		Requests requests = requestsRepository.findByRequestIdAndUserId(requestId, uuid)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
 
@@ -459,7 +460,7 @@ public class RequestsServiceImpl implements RequestsService {
 
 	@Transactional
 	@Override
-	public void updatePartnerResponse(Long requestId, String partnerId, String uuid, RequestsStates status) {
+	public void updatePartnerResponse(String requestId, String partnerId, String uuid, RequestsStates status) {
 		Requests requests = requestsRepository.findByRequestId(requestId)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
 
@@ -475,14 +476,6 @@ public class RequestsServiceImpl implements RequestsService {
 		};
 
 		return PageRequest.of(page, pageSize, sort);
-	}
-
-	private JsonNode parseJson(String json) {
-		try {
-			return objectMapper.readTree(json);
-		} catch (Exception e) {
-			throw new RuntimeException("Failed to parse JSON", e);
-		}
 	}
 
 	private String generateRequestId() {
@@ -532,8 +525,8 @@ public class RequestsServiceImpl implements RequestsService {
 
 	private Requests getRequests(RequestsCreateReqDto requestsCreateReqDto, String uuid, String userImageUrl,
 		String userNickName, Short userGender, int userAge) {
-		Requests requests = Requests.builder()
-			.id(generateRequestId())
+		return Requests.builder()
+			.requestId(generateRequestId())
 			.userId(uuid)
 			.title(requestsCreateReqDto.getTitle())
 			.description(requestsCreateReqDto.getDescription())
@@ -549,7 +542,6 @@ public class RequestsServiceImpl implements RequestsService {
 			.referenceImageUrls(requestsCreateReqDto.getReferenceImageUrls())
 			.myImageUrls(requestsCreateReqDto.getMyImageUrls())
 			.build();
-		return requests;
 	}
 
 }

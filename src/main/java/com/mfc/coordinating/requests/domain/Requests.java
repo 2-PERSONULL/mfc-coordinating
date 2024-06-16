@@ -86,9 +86,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Requests {
 	@Id
-	private String id;
-
-	private Long requestId;
+	private String requestId;
 	private String userId;
 	private String title;
 	private String description;
@@ -102,15 +100,14 @@ public class Requests {
 	private Short userGender;
 	private int userAge;
 
-	private final List<RequestPartner> partner = new ArrayList<>();
+	private List<RequestPartner> partner = new ArrayList<>();
 	private List<String> brandIds = new ArrayList<>();
 	private List<String> categoryIds = new ArrayList<>();
 	private List<String> referenceImageUrls = new ArrayList<>();
 	private List<String> myImageUrls = new ArrayList<>();
 
 	@Builder
-	public Requests(String id, Long requestId, String userId, String title, String description, String situation, String budget, String otherRequirements, String userImageUrl, String userNickName, Short userGender, int userAge, List<String> brandIds, List<String> categoryIds, List<String> referenceImageUrls, List<String> myImageUrls) {
-		this.id = id;
+	public Requests(String requestId, String userId, String title, String description, String situation, String budget, String otherRequirements, String userImageUrl, String userNickName, Short userGender, int userAge, List<String> brandIds, List<String> categoryIds, List<String> referenceImageUrls, List<String> myImageUrls) {
 		this.requestId = requestId;
 		this.userId = userId;
 		this.title = title;
@@ -139,6 +136,8 @@ public class Requests {
 		private String partnerId;
 		private RequestsStates status;
 		private LocalDate deadline;
+		private String confirmedPrice;
+
 
 		@Builder
 		public RequestPartner(String partnerId, RequestsStates status, LocalDate deadline) {

@@ -3,7 +3,6 @@ package com.mfc.coordinating.requests.application;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mfc.coordinating.requests.dto.kafka.AuthInfoResponseDto;
 import com.mfc.coordinating.requests.dto.kafka.UserInfoResponseDto;
