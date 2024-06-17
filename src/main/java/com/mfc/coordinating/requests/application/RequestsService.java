@@ -1,47 +1,9 @@
-// package com.mfc.coordinating.requests.application;
-//
-// import java.time.LocalDate;
-// import java.util.List;
-//
-// import org.bson.types.ObjectId;
-//
-// import com.mfc.coordinating.requests.dto.req.RequestsCreateReqDto;
-// import com.mfc.coordinating.requests.dto.req.RequestsUpdateReqDto;
-// import com.mfc.coordinating.requests.dto.res.MyRequestListResponse;
-// import com.mfc.coordinating.requests.dto.res.RequestsDetailResDto;
-// import com.mfc.coordinating.requests.dto.res.RequestsListResDto;
-// import com.mfc.coordinating.requests.enums.RequestsListSortType;
-//
-// public interface RequestsService {
-//
-// 	// void createRequests(RequestsCreateReqDto requestsCreateReqDto, String uuid);
-// 	//
-// 	// List<MyRequestListResponse> getRequestsList(int page, int pageSize, RequestsListSortType sortType, String uuid);
-// 	//
-// 	// List<RequestsListResDto> getRequestsListByUser(int page, int pageSize, RequestsListSortType sortType, String uuid);
-// 	//
-// 	// RequestsDetailResDto getRequestsDetail(Long requestId);
-// 	//
-// 	// void updateRequests(RequestsUpdateReqDto dto, Long requestId, String uuid);
-// 	//
-// 	// void deleteRequests(Long requestId, String uuid);
-// 	//
-// 	// void updateProposal(Long requestId, String partnerId, String uuid, LocalDate deadline);
-// 	//
-// 	// List<RequestsListResDto> getRequestsListPartner(int page, int pageSize, RequestsListSortType sortType, String uuid);
-// 	//
-// 	// void updateAcceptRequests(ObjectId historyId, String uuid);
-// 	//
-// 	// void updateRejectRequests(ObjectId historyId, String uuid);
-// 	//
-// 	// RequestsListResDto getRequestHistoryById(ObjectId id);
-//
-//
-// }
 package com.mfc.coordinating.requests.application;
 
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.List;
+
+import org.springframework.transaction.annotation.Transactional;
 
 import com.mfc.coordinating.requests.dto.req.RequestsCreateReqDto;
 import com.mfc.coordinating.requests.dto.req.RequestsUpdateReqDto;
@@ -52,13 +14,14 @@ import com.mfc.coordinating.requests.enums.RequestsListSortType;
 import com.mfc.coordinating.requests.enums.RequestsStates;
 
 public interface RequestsService {
+
 	/**
 	 * 코디 요청서 생성
 	 *
 	 * @param requestsCreateReqDto 코디 요청서 생성 DTO
-	 * @param uuid 사용자 UUID
+	 * @param userId 사용자 ID
 	 */
-	void createRequests(RequestsCreateReqDto requestsCreateReqDto, String uuid);
+	void createRequests(RequestsCreateReqDto requestsCreateReqDto, String userId);
 
 	/**
 	 * 사용자가 작성한 코디 요청서 목록 조회
@@ -66,10 +29,10 @@ public interface RequestsService {
 	 * @param page 페이지 번호
 	 * @param pageSize 페이지 크기
 	 * @param sortType 정렬 기준
-	 * @param uuid 사용자 UUID
+	 * @param userId 사용자 ID
 	 * @return 코디 요청서 목록
 	 */
-	List<MyRequestListResponse> getMyRequestsList(int page, int pageSize, RequestsListSortType sortType, String uuid);
+	List<MyRequestListResponse> getMyRequestsList(int page, int pageSize, RequestsListSortType sortType, String userId);
 
 	/**
 	 * 파트너별 코디 요청서 목록 조회
@@ -77,12 +40,20 @@ public interface RequestsService {
 	 * @param page 페이지 번호
 	 * @param pageSize 페이지 크기
 	 * @param sortType 정렬 기준
-	 * @param userId 사용자 ID
+	 * @param partnerId 파트너 ID
 	 * @return 파트너별 코디 요청서 목록
 	 */
-	List<RequestsListResDto> getPartnerRequestsList(int page, int pageSize, RequestsListSortType sortType,
-		String userId);
+	List<RequestsListResDto> getPartnerRequestsList(int page, int pageSize, RequestsListSortType sortType, String partnerId);
 
+	/**
+	 * 사용자별 코디 요청서 목록 조회
+	 *
+	 * @param page 페이지 번호
+	 * @param pageSize 페이지 크기
+	 * @param sortType 정렬 기준
+	 * @param userId 사용자 ID
+	 * @return 사용자별 코디 요청서 목록
+	 */
 	List<RequestsListResDto> getUserRequestsList(int page, int pageSize, RequestsListSortType sortType, String userId);
 
 	/**
@@ -96,38 +67,47 @@ public interface RequestsService {
 	/**
 	 * 코디 요청서 수정
 	 *
-	 * @param dto 코디 요청서 수정 DTO
+	 * @param requestsUpdateReqDto 코디 요청서 수정 DTO
 	 * @param requestId 요청서 ID
-	 * @param uuid 사용자 UUID
+	 * @param userId 사용자 ID
 	 */
-	void updateRequests(RequestsUpdateReqDto dto, String requestId, String uuid);
+	void updateRequests(RequestsUpdateReqDto requestsUpdateReqDto, String requestId, String userId);
 
 	/**
 	 * 코디 요청서 삭제
 	 *
 	 * @param requestId 요청서 ID
-	 * @param uuid 사용자 UUID
+	 * @param userId 사용자 ID
 	 */
-	void deleteRequests(String requestId, String uuid);
+	void deleteRequests(String requestId, String userId);
 
 	/**
 	 * 코디 요청서 제안
 	 *
 	 * @param requestId 요청서 ID
 	 * @param partnerId 파트너 ID
-	 * @param uuid 사용자 UUID
+	 * @param userId 사용자 ID
 	 * @param deadline 제안 마감일
 	 */
-	void updateProposal(String requestId, String partnerId, String uuid, LocalDate deadline);
+	void updateProposal(String requestId, String partnerId, String userId, Instant deadline);
+
+	/**
+	 * 파트너 확정 제안
+	 *
+	 * @param requestId 요청서 ID
+	 * @param partnerId 파트너 ID
+	 * @param price 제안 가격
+	 */
+	@Transactional
+	void confirmProposal(String requestId, String partnerId, Double price, Instant confirmDate);
 
 	/**
 	 * 파트너 응답 업데이트
 	 *
 	 * @param requestId 요청서 ID
 	 * @param partnerId 파트너 ID
-	 * @param uuid 사용자 UUID
+	 * @param userId 사용자 ID
 	 * @param status 응답 상태
 	 */
-	void updatePartnerResponse(String requestId, String partnerId, String uuid, RequestsStates status);
-
+	void updatePartnerResponse(String requestId, String partnerId, String userId, RequestsStates status);
 }

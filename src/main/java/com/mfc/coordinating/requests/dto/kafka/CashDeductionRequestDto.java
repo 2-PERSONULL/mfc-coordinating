@@ -6,9 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RequestUserInfoDto {
+@Builder
+public class CashDeductionRequestDto {
 	private String userId;
+	private String amount;
 }

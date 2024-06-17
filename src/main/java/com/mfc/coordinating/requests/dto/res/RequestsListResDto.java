@@ -1,6 +1,6 @@
 package com.mfc.coordinating.requests.dto.res;
 
-import java.time.LocalDate;
+import java.time.Instant;
 
 import com.mfc.coordinating.requests.enums.RequestsStates;
 
@@ -17,8 +17,8 @@ public class RequestsListResDto {
 	private Short userGender;
 	private int userAge;
 	private String title;
-	private LocalDate createdDate;
+	private Instant createdDate;
 	private String partnerId;
 	private RequestsStates status;
-	private LocalDate deadline;
+	private Instant deadline;
 }
