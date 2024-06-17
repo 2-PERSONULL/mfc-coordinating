@@ -3,7 +3,7 @@ package com.mfc.coordinating.requests.application;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
-import com.mfc.coordinating.requests.dto.kafka.RequestUserInfoDto;
+import com.mfc.coordinating.requests.dto.kafka.CashDeductionRequestDto;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,22 +15,15 @@ public class RequestsEventProducer {
 
 	private final KafkaTemplate<String, Object> kafkaTemplate;
 
-
-	public void requestUserInfo(String uuid) {
+	public void publishDeductCashEvent(String userId, String amount) {
 		try {
-			RequestUserInfoDto dto = RequestUserInfoDto.builder().userId(uuid).build();
-			kafkaTemplate.send("user-info-request", dto);
+			CashDeductionRequestDto dto = CashDeductionRequestDto.builder()
+				.userId(userId)
+				.amount(amount)
+				.build();
+			kafkaTemplate.send("cash-deduction-request", dto);
 		} catch (Exception e) {
-			log.error("Failed to send user info request event", e);
-		}
-	}
-
-	public void requestAuthInfo(String uuid) {
-		try {
-			RequestUserInfoDto dto = RequestUserInfoDto.builder().userId(uuid).build();
-			kafkaTemplate.send("auth-info-request", dto);
-		} catch (Exception e) {
-			log.error("Failed to send auth info request event", e);
+			log.error("Failed to publish cash deduction event", e);
 		}
 	}
 }

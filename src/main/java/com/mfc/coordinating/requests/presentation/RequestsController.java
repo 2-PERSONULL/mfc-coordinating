@@ -165,7 +165,7 @@
 
 package com.mfc.coordinating.requests.presentation;
 
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
@@ -182,6 +182,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mfc.coordinating.common.response.BaseResponse;
 import com.mfc.coordinating.requests.application.RequestsService;
+import com.mfc.coordinating.requests.dto.req.ConfirmProposalRequest;
 import com.mfc.coordinating.requests.dto.req.RequestsCreateReqDto;
 import com.mfc.coordinating.requests.dto.req.RequestsUpdateReqDto;
 import com.mfc.coordinating.requests.dto.res.MyRequestListResponse;
@@ -285,7 +286,7 @@ public class RequestsController {
 		@RequestHeader String uuid,
 		@PathVariable String requestId,
 		@PathVariable String partnerId,
-		@RequestParam LocalDate deadline
+		@RequestParam Instant deadline
 	) {
 		requestsService.updateProposal(requestId, partnerId, uuid, deadline);
 		return new BaseResponse<>();
@@ -302,4 +303,16 @@ public class RequestsController {
 		requestsService.updatePartnerResponse(requestId, partnerId, uuid, status);
 		return new BaseResponse<>();
 	}
+
+	@PutMapping("/confirm/{requestId}/{partnerId}")
+	@Operation(summary = "파트너 확정 제안", description = "파트너가 코디 요청서에 대한 확정 제안을 합니다.")
+	public BaseResponse<Void> confirmProposal(
+		@PathVariable String requestId,
+		@PathVariable String partnerId,
+		@RequestBody ConfirmProposalRequest request
+	) {
+		requestsService.confirmProposal(requestId, partnerId, request.getPrice(), request.getConfirmDate());
+		return new BaseResponse<>();
+	}
+
 }

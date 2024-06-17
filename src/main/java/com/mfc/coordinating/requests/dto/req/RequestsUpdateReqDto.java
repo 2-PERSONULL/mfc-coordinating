@@ -13,7 +13,6 @@ public class RequestsUpdateReqDto {
 	private String description;
 	private String situation;
 	private String budget;
-	private String otherRequirements;
 	private List<String> referenceImageUrls;
 	private List<String> myImageUrls;
 	private List<String> brandIds;
@@ -21,13 +20,12 @@ public class RequestsUpdateReqDto {
 
 	@Builder
 	public RequestsUpdateReqDto(String title, String description, String situation, String budget,
-		String otherRequirements, List<String> referenceImageUrls, List<String> myImageUrls,
+		 List<String> referenceImageUrls, List<String> myImageUrls,
 		List<String> brandIds, List<String> categoryIds) {
 		this.title = title;
 		this.description = description;
 		this.situation = situation;
 		this.budget = budget;
-		this.otherRequirements = otherRequirements;
 		this.referenceImageUrls = referenceImageUrls;
 		this.myImageUrls = myImageUrls;
 		this.brandIds = brandIds;

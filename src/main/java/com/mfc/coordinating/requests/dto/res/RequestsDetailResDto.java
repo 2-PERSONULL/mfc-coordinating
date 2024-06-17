@@ -1,6 +1,6 @@
 package com.mfc.coordinating.requests.dto.res;
 
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.List;
 
 import com.mfc.coordinating.requests.domain.Requests.RequestPartner;
@@ -17,8 +17,7 @@ public class RequestsDetailResDto {
 	private String description;
 	private String situation;
 	private String budget;
-	private String otherRequirements;
-	private LocalDate createdDate;
+	private Instant createdDate;
 	private String userImageUrl;
 	private String userNickName;
 	private Short userGender;
