@@ -1,7 +1,10 @@
 package com.mfc.coordinating.requests.application;
 
+import static com.mfc.coordinating.requests.enums.RequestsStates.*;
+
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -20,6 +23,7 @@ import com.mfc.coordinating.common.client.MemberInfoResponse;
 import com.mfc.coordinating.common.exception.BaseException;
 import com.mfc.coordinating.common.response.BaseResponseStatus;
 import com.mfc.coordinating.requests.domain.Requests;
+import com.mfc.coordinating.requests.dto.kafka.CreateChatRoomDto;
 import com.mfc.coordinating.requests.dto.req.AuthInfoRequestDto;
 import com.mfc.coordinating.requests.dto.req.RequestsCreateReqDto;
 import com.mfc.coordinating.requests.dto.req.RequestsUpdateReqDto;
@@ -180,6 +184,18 @@ public class RequestsServiceImpl implements RequestsService {
 
 		requests.updatePartnerStatus(partnerId, status);
 		requestsRepository.save(requests);
+
+		if(status == RESPONSEACCEPT) {
+			List<String> members = new ArrayList<>();
+			members.add(partnerId);
+			members.add(uuid);
+
+			requestsEventProducer.createChatRoom(
+					CreateChatRoomDto.builder()
+							.requestId(requestId)
+							.members(members)
+							.build());
+		}
 	}
 
 	private Pageable getPageable(int page, int pageSize, RequestsListSortType sortType) {
