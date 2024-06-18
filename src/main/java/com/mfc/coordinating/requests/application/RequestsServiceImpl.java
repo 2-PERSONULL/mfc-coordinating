@@ -134,6 +134,8 @@ public class RequestsServiceImpl implements RequestsService {
 			dto.getReferenceImageUrls(),
 			dto.getMyImageUrls()
 		);
+
+		requestsRepository.save(requests);
 	}
 
 	@Transactional

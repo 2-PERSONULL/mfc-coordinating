@@ -11,11 +11,6 @@ public class TradeEventProducer {
 
 	private final KafkaTemplate<String, Object> kafkaTemplate;
 
-	public void sendTradeCreatedEvent(String userUuid, String partnerUuid, Double amount, Long tradeId) {
-		String message = String.format("UserUuid: %s, PartnerUuid: %s, Amount: %.2f, TradeId: %d", userUuid, partnerUuid, amount, tradeId);
-		kafkaTemplate.send("user-settlement", message);
-	}
-
 	public void sendTradeSettledEvent(String userUuid, String partnerUuid, Double amount, Long tradeId) {
 		String message = String.format("UserUuid: %s, PartnerUuid: %s, Amount: %.2f, TradeId: %d", userUuid, partnerUuid, amount, tradeId);
 		kafkaTemplate.send("partner-completion", message);

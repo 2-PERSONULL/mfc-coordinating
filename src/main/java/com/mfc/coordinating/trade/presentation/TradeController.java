@@ -17,11 +17,14 @@ import com.mfc.coordinating.trade.dto.request.TradeUpdateRequest;
 import com.mfc.coordinating.trade.dto.response.TradeResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/trade")
+@Tag(name = "Trade", description = "코디와 유저 매칭 후 최종 내역(채팅방 확정서)")
+
 public class TradeController {
 	private final TradeService tradeService;
 
@@ -68,7 +71,7 @@ public class TradeController {
 	}
 
 	@PutMapping("/user/{id}")
-	@Operation(summary = "제안 수락", description = "제안을 수락합니다.")
+	@Operation(summary = "제안 수락", description = "코디네이터가 제출한 코디를 보고 최종 확정 여부 결정(파트너에게 캐시 최종 전달)")
 	public BaseResponse<Void> updateTradeStatus(@PathVariable Long id,
 		@RequestHeader("User-UUID") String userUuid) {
 		tradeService.updateTradeStatus(id, userUuid);
