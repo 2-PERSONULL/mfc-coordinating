@@ -4,6 +4,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import com.mfc.coordinating.requests.dto.kafka.CashDeductionRequestDto;
+import com.mfc.coordinating.requests.dto.kafka.CreateChatRoomDto;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,5 +26,9 @@ public class RequestsEventProducer {
 		} catch (Exception e) {
 			log.error("Failed to publish cash deduction event", e);
 		}
+	}
+
+	public void createChatRoom(CreateChatRoomDto dto) {
+		kafkaTemplate.send("create-chatroom", dto);
 	}
 }
