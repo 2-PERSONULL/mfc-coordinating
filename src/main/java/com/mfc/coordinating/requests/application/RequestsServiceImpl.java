@@ -48,6 +48,7 @@ public class RequestsServiceImpl implements RequestsService {
 	private final RequestMapper requestMapper;
     private final AuthClient authClient;
 	private final MemberClient memberClient;
+	private final RequestsEventProducer requestsEventProducer;
 
 	@Override
 	public void createRequests(RequestsCreateReqDto requestsCreateReqDto, String uuid) {
