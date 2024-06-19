@@ -45,8 +45,6 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 public class RequestsServiceImpl implements RequestsService {
 	private final RequestsRepository requestsRepository;
-	private final RequestsEventProducer requestsEventProducer;
-	private final ObjectMapper objectMapper;
 	private final RequestMapper requestMapper;
     private final AuthClient authClient;
 	private final MemberClient memberClient;
@@ -61,23 +59,18 @@ public class RequestsServiceImpl implements RequestsService {
 		UserInfoRequestDto userInfoResponse = member_response.getResult();
 
 		String userImageUrl = userInfoResponse.getUserImageUrl();
-		if (userImageUrl == null) {
-			userImageUrl = "";
-		}
+
 		String userNickName = userInfoResponse.getUserNickName();
-		if (userNickName == null) {
-			userNickName = "user";
-		}
+
 		Short userGender = authInfoResponse.getUserGender();
-		if (userGender == null) {
-			userGender = 0;
-		}
+
 		LocalDate userBirth = authInfoResponse.getUserBirth();
 
 		int userAge = LocalDate.now().getYear() - userBirth.getYear();
 
 		// Requests 엔티티 생성 및 저장
-		Requests requests = getRequests(requestsCreateReqDto, uuid, userImageUrl,
+		Requests requests = getRequests(requestsCreateReqDto, uuid,
+			userImageUrl != null ? userImageUrl : "",
 			userNickName, userGender, userAge);
 
 		requestsRepository.save(requests);
@@ -138,6 +131,8 @@ public class RequestsServiceImpl implements RequestsService {
 			dto.getReferenceImageUrls(),
 			dto.getMyImageUrls()
 		);
+
+		requestsRepository.save(requests);
 	}
 
 	@Transactional

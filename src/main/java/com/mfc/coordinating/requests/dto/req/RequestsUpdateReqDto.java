@@ -2,6 +2,7 @@ package com.mfc.coordinating.requests.dto.req;
 
 import java.util.List;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,7 +10,9 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class RequestsUpdateReqDto {
+	@NotNull
 	private String title;
+	@NotNull
 	private String description;
 	private String situation;
 	private String budget;

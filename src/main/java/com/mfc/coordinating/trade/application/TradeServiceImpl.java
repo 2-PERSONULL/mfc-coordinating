@@ -30,8 +30,8 @@ public class TradeServiceImpl implements TradeService {
 		}
 		Trade trade = mapToEntity(tradeRequest);
 		Trade createdTrade = tradeRepository.save(trade);
-		tradeEventProducer.sendTradeCreatedEvent(tradeRequest.getUserId(), tradeRequest.getPartnerId(),
-			tradeRequest.getTotalPrice(), createdTrade.getTradeId());
+		// tradeEventProducer.sendTradeCreatedEvent(tradeRequest.getUserId(), tradeRequest.getPartnerId(),
+		// 	tradeRequest.getTotalPrice(), createdTrade.getTradeId(), trade);
 		return mapToResponse(createdTrade);
 	}
 
@@ -86,14 +86,14 @@ public class TradeServiceImpl implements TradeService {
 		}
 		// dirty checking
 		trade.tradeSettled();
-		tradeEventProducer.sendTradeSettledEvent(trade.getPartnerId(), trade.getUserId(),
+		tradeEventProducer.sendTradeSettledEvent(trade.getUserId(), trade.getPartnerId(),
 			trade.getTotalPrice(), trade.getTradeId());
 
 	}
 
 	@KafkaListener(topics = "coordinates-submitted-topic", groupId = "trade-coordinates-submitted-group")
-	public void handleCoordinatesSubmitted(Long requestHistoryId) {
-		Trade trade = tradeRepository.findByRequestHistoryId(requestHistoryId)
+	public void handleCoordinatesSubmitted(String requestId) {
+		Trade trade = tradeRepository.findByRequestId(requestId)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.CONFIRMS_NOT_FOUND));
 
 		trade.setCoordinatesSubmitted();
@@ -116,7 +116,7 @@ public class TradeServiceImpl implements TradeService {
 			.options(tradeRequest.getOptions())
 			.totalPrice(tradeRequest.getTotalPrice())
 			.dueDate(tradeRequest.getDueDate())
-			.requestHistoryId(tradeRequest.getRequestHistoryId())
+			.requestId(tradeRequest.getRequestId())
 			.build();
 	}
 
@@ -128,7 +128,7 @@ public class TradeServiceImpl implements TradeService {
 			.options(trade.getOptions())
 			.totalPrice(trade.getTotalPrice())
 			.dueDate(trade.getDueDate())
-			.requestHistoryId(trade.getRequestHistoryId())
+			.requestId(trade.getRequestId())
 			.status(trade.getStatus())
 			.isCoordinatesSubmitted(trade.getIsCoordinatesSubmitted())
 			.build();

@@ -20,6 +20,7 @@ import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
+import com.mfc.coordinating.requests.dto.kafka.PaymentCompletedEvent;
 
 @EnableKafka
 @Configuration
@@ -46,7 +47,7 @@ public class KafkaConfig {
 	}
 
 	@Bean
-	public ConsumerFactory<String, Object> consumerFactory() {
+	public ConsumerFactory<String, PaymentCompletedEvent> consumerFactory() {
 		Map<String, Object> configProps = new HashMap<>();
 		configProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
 		configProps.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroupId);
@@ -54,13 +55,18 @@ public class KafkaConfig {
 		configProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 		configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
 		configProps.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
-		return new DefaultKafkaConsumerFactory<>(configProps);
+		return new DefaultKafkaConsumerFactory<>(
+			configProps,
+			new StringDeserializer(),
+			new JsonDeserializer<>(PaymentCompletedEvent.class, false)
+		);
 	}
 
 	@Bean
-	public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
-		ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
+	public ConcurrentKafkaListenerContainerFactory<String, PaymentCompletedEvent> kafkaListenerContainerFactory() {
+		ConcurrentKafkaListenerContainerFactory<String, PaymentCompletedEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
 		factory.setConsumerFactory(consumerFactory());
+		factory.setConcurrency(2);
 		return factory;
 	}
 }

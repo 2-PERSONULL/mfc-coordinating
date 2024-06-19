@@ -166,6 +166,8 @@
 package com.mfc.coordinating.requests.presentation;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
@@ -182,7 +184,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mfc.coordinating.common.response.BaseResponse;
 import com.mfc.coordinating.requests.application.RequestsService;
-import com.mfc.coordinating.requests.dto.req.ConfirmProposalRequest;
 import com.mfc.coordinating.requests.dto.req.RequestsCreateReqDto;
 import com.mfc.coordinating.requests.dto.req.RequestsUpdateReqDto;
 import com.mfc.coordinating.requests.dto.res.MyRequestListResponse;
@@ -193,6 +194,7 @@ import com.mfc.coordinating.requests.enums.RequestsStates;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -209,7 +211,7 @@ public class RequestsController {
 	@Operation(summary = "코디 요청서 생성", description = "유저가 작성한 코디 요청서를 저장합니다.")
 	public BaseResponse<Void> createRequests(
 		@RequestHeader String uuid,
-		@RequestBody RequestsCreateReqDto requestsCreateReqDto
+		@Valid @RequestBody RequestsCreateReqDto requestsCreateReqDto
 	) {
 		requestsService.createRequests(requestsCreateReqDto, uuid);
 		return new BaseResponse<>();
@@ -264,7 +266,7 @@ public class RequestsController {
 	public BaseResponse<Void> updateRequests(
 		@RequestHeader String uuid,
 		@PathVariable String requestId,
-		@RequestBody RequestsUpdateReqDto requestsUpdateReqDto
+		@Valid @RequestBody RequestsUpdateReqDto requestsUpdateReqDto
 	) {
 		requestsService.updateRequests(requestsUpdateReqDto, requestId, uuid);
 		return new BaseResponse<>();
@@ -286,9 +288,10 @@ public class RequestsController {
 		@RequestHeader String uuid,
 		@PathVariable String requestId,
 		@PathVariable String partnerId,
-		@RequestParam Instant deadline
+		@RequestParam LocalDate deadline
 	) {
-		requestsService.updateProposal(requestId, partnerId, uuid, deadline);
+		Instant date = deadline.atStartOfDay(ZoneOffset.UTC).toInstant();
+		requestsService.updateProposal(requestId, partnerId, uuid, date);
 		return new BaseResponse<>();
 	}
 
@@ -304,15 +307,15 @@ public class RequestsController {
 		return new BaseResponse<>();
 	}
 
-	@PutMapping("/confirm/{requestId}/{partnerId}")
-	@Operation(summary = "파트너 확정 제안", description = "파트너가 코디 요청서에 대한 확정 제안을 합니다.")
-	public BaseResponse<Void> confirmProposal(
-		@PathVariable String requestId,
-		@PathVariable String partnerId,
-		@RequestBody ConfirmProposalRequest request
-	) {
-		requestsService.confirmProposal(requestId, partnerId, request.getPrice(), request.getConfirmDate());
-		return new BaseResponse<>();
-	}
+	// @PutMapping("/confirm/{requestId}/{partnerId}")
+	// @Operation(summary = "파트너 확정 제안", description = "파트너가 코디 요청서에 대한 확정 제안을 합니다.")
+	// public BaseResponse<Void> confirmProposal(
+	// 	@PathVariable String requestId,
+	// 	@PathVariable String partnerId,
+	// 	@RequestBody ConfirmProposalRequest request
+	// ) {
+	// 	requestsService.confirmProposal(requestId, partnerId, request.getPrice(), request.getConfirmDate());
+	// 	return new BaseResponse<>();
+	// }
 
 }
