@@ -87,7 +87,7 @@ public class TradeServiceImpl implements TradeService {
 		// dirty checking
 		trade.tradeSettled();
 		tradeEventProducer.sendTradeSettledEvent(trade.getUserId(), trade.getPartnerId(),
-			trade.getTotalPrice(), trade.getTradeId());
+			trade.getTotalPrice(), trade.getTradeId(), trade.getDueDate());
 
 	}
 

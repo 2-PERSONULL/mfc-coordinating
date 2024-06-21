@@ -13,5 +13,4 @@ public interface ReviewsService {
 	Reviews getReviewById(Long reviewId);
 	void updateReview(Long reviewId, String comment, List<String> reviewImage);
 	void deleteReview(Long reviewId);
-	Integer getReviewCount(String partnerId);
 }

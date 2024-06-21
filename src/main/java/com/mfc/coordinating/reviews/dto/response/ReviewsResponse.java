@@ -15,7 +15,7 @@ public class ReviewsResponse {
 	private Long requestId;
 	private String userId;
 	private String partnerId;
-	private Byte rating;
+	private Short rating;
 	private String comment;
 	private List<String> reviewImage;
 

@@ -21,6 +21,7 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import com.mfc.coordinating.requests.dto.kafka.PaymentCompletedEvent;
+import com.mfc.coordinating.reviews.dto.kafka.ReviewSummaryDto;
 
 @EnableKafka
 @Configuration
@@ -44,6 +45,20 @@ public class KafkaConfig {
 	@Bean
 	public KafkaTemplate<String, Object> kafkaTemplate() {
 		return new KafkaTemplate<>(producerFactory());
+	}
+
+	@Bean
+	public ProducerFactory<String, ReviewSummaryDto> reviewProducerFactory() {
+		Map<String,Object> config = new HashMap<>();
+		config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,"localhost:9092");
+		config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+		config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+		return new DefaultKafkaProducerFactory<>(config);
+	}
+
+	@Bean
+	public KafkaTemplate<String,ReviewSummaryDto> reviewSummaryDtoKafkaTemplate() {
+		return new KafkaTemplate<>(reviewProducerFactory());
 	}
 
 	@Bean

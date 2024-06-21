@@ -105,9 +105,8 @@ public interface RequestsService {
 	 * 파트너 응답 업데이트
 	 *
 	 * @param requestId 요청서 ID
-	 * @param partnerId 파트너 ID
 	 * @param userId 사용자 ID
 	 * @param status 응답 상태
 	 */
-	void updatePartnerResponse(String requestId, String partnerId, String userId, RequestsStates status);
+	void updatePartnerResponse(String requestId, String userId, RequestsStates status);
 }

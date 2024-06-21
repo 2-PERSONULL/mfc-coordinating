@@ -15,7 +15,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mfc.coordinating.common.client.AuthClient;
 import com.mfc.coordinating.common.client.AuthInfoResponse;
 import com.mfc.coordinating.common.client.MemberClient;
@@ -69,10 +68,14 @@ public class RequestsServiceImpl implements RequestsService {
 
 		int userAge = LocalDate.now().getYear() - userBirth.getYear();
 
+
 		// Requests 엔티티 생성 및 저장
 		Requests requests = getRequests(requestsCreateReqDto, uuid,
 			userImageUrl != null ? userImageUrl : "",
 			userNickName, userGender, userAge);
+
+		log.info("Requests 엔티티 저장 전: {}", requests.getMyImageUrls());
+
 
 		requestsRepository.save(requests);
 	}
@@ -174,16 +177,16 @@ public class RequestsServiceImpl implements RequestsService {
 
 	@Transactional
 	@Override
-	public void updatePartnerResponse(String requestId, String partnerId, String uuid, RequestsStates status) {
+	public void updatePartnerResponse(String requestId, String uuid, RequestsStates status) {
 		Requests requests = requestsRepository.findByRequestId(requestId)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
 
-		requests.updatePartnerStatus(partnerId, status);
+		requests.updatePartnerStatus(uuid, status);
 		requestsRepository.save(requests);
 
 		if(status == RESPONSEACCEPT) {
 			List<String> members = new ArrayList<>();
-			members.add(partnerId);
+			members.add(requests.getUserId());
 			members.add(uuid);
 
 			requestsEventProducer.createChatRoom(

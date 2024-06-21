@@ -170,7 +170,6 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -205,7 +204,6 @@ import lombok.extern.slf4j.Slf4j;
 @Tag(name = "Requests", description = "코디 요청서 API document")
 public class RequestsController {
 	private final RequestsService requestsService;
-	private final ModelMapper modelMapper;
 
 	@PostMapping("")
 	@Operation(summary = "코디 요청서 생성", description = "유저가 작성한 코디 요청서를 저장합니다.")
@@ -295,15 +293,14 @@ public class RequestsController {
 		return new BaseResponse<>();
 	}
 
-	@PutMapping("/response/{requestId}/{partnerId}")
+	@PutMapping("/response/{requestId}")
 	@Operation(summary = "파트너 응답 업데이트", description = "파트너가 코디 요청서에 대한 응답을 업데이트합니다.")
 	public BaseResponse<Void> updatePartnerResponse(
 		@RequestHeader String uuid,
 		@PathVariable String requestId,
-		@PathVariable String partnerId,
 		@RequestParam RequestsStates status
 	) {
-		requestsService.updatePartnerResponse(requestId, partnerId, uuid, status);
+		requestsService.updatePartnerResponse(requestId, uuid, status);
 		return new BaseResponse<>();
 	}
 
