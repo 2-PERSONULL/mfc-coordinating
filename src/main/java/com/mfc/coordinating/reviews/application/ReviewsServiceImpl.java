@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class ReviewsServiceImpl implements ReviewsService {
 	private final ReviewsRepository reviewsRepository;
+	private final ReviewEventProducer reviewEventProducer;
 
 	@Override
 	@Transactional
@@ -40,6 +41,9 @@ public class ReviewsServiceImpl implements ReviewsService {
 
 		// 리뷰 저장
 		reviewsRepository.save(review);
+
+		// 직접리뷰 업데이트
+		reviewEventProducer.publishCreateReviewEvent(request.getPartnerId(), request.getRating());
 	}
 
 	@Override
@@ -74,9 +78,4 @@ public class ReviewsServiceImpl implements ReviewsService {
 		reviewsRepository.delete(review);
 	}
 
-	@Override
-	@Transactional
-	public Integer getReviewCount(String partnerId) {
-		return reviewsRepository.getReviewCountByPartnerId(partnerId);
-	}
 }

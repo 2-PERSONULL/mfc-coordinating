@@ -43,7 +43,7 @@ public class Reviews extends BaseEntity {
 	private String partnerId;
 
 	@Column(nullable = false)
-	private Byte rating;
+	private Short rating;
 
 	@Column(nullable = false)
 	private String comment;
@@ -52,7 +52,7 @@ public class Reviews extends BaseEntity {
 	private List<ReviewImage> reviewImages = new ArrayList<>();
 
 	@Builder
-	public Reviews(Long requestId, String userId, String partnerId, Byte rating, String comment){
+	public Reviews(Long requestId, String userId, String partnerId, Short rating, String comment){
 		this.requestId = requestId;
 		this.userId = userId;
 		this.partnerId = partnerId;

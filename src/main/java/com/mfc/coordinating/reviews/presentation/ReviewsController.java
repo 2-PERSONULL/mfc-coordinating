@@ -73,10 +73,4 @@ public class ReviewsController {
 		return new BaseResponse<>();
 	}
 
-	@GetMapping("/count/{partnerId}")
-	@Operation(summary = "리뷰 개수", description = "리뷰 개수를 조회합니다.")
-	public BaseResponse<Integer> getReviewCount(@PathVariable String partnerId) {
-		Integer reviewCount = reviewsService.getReviewCount(partnerId);
-		return new BaseResponse<>(reviewCount);
-	}
 }
