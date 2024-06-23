@@ -3,7 +3,6 @@ package com.mfc.coordinating.coordinates.application;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,16 +50,16 @@ public class CoordinatesServiceImpl implements CoordinatesService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public CoordinatesResponse getCoordinatesById(Long id) {
-		Coordinates coordinates = findCoordinatesById(id);
-		List<CoordinatesImage> coordinatesImages = coordinatesImageRepository.findByCoordinatesId(id);
+	public CoordinatesResponse getCoordinatesById(String id) {
+		Coordinates coordinates = findCoordinatesByRequestId(id);
+		List<CoordinatesImage> coordinatesImages = coordinatesImageRepository.findByCoordinatesId(coordinates.getId());
 		return CoordinatesResponse.from(coordinates, coordinatesImages);
 	}
 
 	@Override
 	@Transactional
-	public void updateCoordinates(Long id, CoordinatesRequest request) {
-		Coordinates coordinates = findCoordinatesById(id);
+	public void updateCoordinates(String id, CoordinatesRequest request) {
+		Coordinates coordinates = findCoordinatesByRequestId(id);
 		coordinates.update(
 			request.getCategory(),
 			request.getBrand(),
@@ -73,12 +72,12 @@ public class CoordinatesServiceImpl implements CoordinatesService {
 
 	@Override
 	@Transactional
-	public void deleteCoordinates(Long id) {
-		coordinatesRepository.deleteById(id);
+	public void deleteCoordinates(String id) {
+		coordinatesRepository.deleteByRequestId(id);
 	}
 
-	private Coordinates findCoordinatesById(Long id) {
-		return coordinatesRepository.findById(id)
+	private Coordinates findCoordinatesByRequestId(String id) {
+		return coordinatesRepository.findByRequestId(id)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATES_NOT_FOUND));
 	}
 
