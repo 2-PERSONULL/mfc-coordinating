@@ -7,7 +7,7 @@ import com.mfc.coordinating.coordinates.dto.response.CoordinatesResponse;
 
 public interface CoordinatesService {
 	List<Long> createCoordinates(List<CoordinatesRequest> requests);
-	CoordinatesResponse getCoordinatesById(String id);
-	void updateCoordinates(String id, CoordinatesRequest request);
-	void deleteCoordinates(String id);
+	List<CoordinatesResponse> getCoordinatesByRequestId(String requestId);
+	void updateCoordinates(Long coordinateId, CoordinatesRequest request);
+	void deleteCoordinates(Long coordinateId);
 }

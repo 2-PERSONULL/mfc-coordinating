@@ -1,12 +1,11 @@
 package com.mfc.coordinating.coordinates.infrastructure;
 
-import java.util.Optional;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.mfc.coordinating.coordinates.domain.Coordinates;
 
 public interface CoordinatesRepository extends JpaRepository<Coordinates, Long> {
-	Optional<Coordinates> findByRequestId(String requestId);
-	void deleteByRequestId(String requestId);
+	List<Coordinates> findByRequestId(String requestId);
 }

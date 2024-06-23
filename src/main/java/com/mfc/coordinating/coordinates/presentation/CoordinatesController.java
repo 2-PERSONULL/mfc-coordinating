@@ -32,24 +32,24 @@ public class CoordinatesController {
 		return new BaseResponse<>(coordinatesIds);
 	}
 
-	@GetMapping("/{requestId}")
-	@Operation(summary = "코디 조회", description = "코디 조회")
-	public BaseResponse<CoordinatesResponse> getCoordinatesById(@PathVariable String requestId) {
-		CoordinatesResponse coordinatesResponse = coordinatesService.getCoordinatesById(requestId);
-		return new BaseResponse<>(coordinatesResponse);
+	@GetMapping("/request/{requestId}")
+	@Operation(summary = "코디 조회", description = "요청 ID에 해당하는 모든 코디를 조회합니다.")
+	public BaseResponse<List<CoordinatesResponse>> getCoordinatesByRequestId(@PathVariable String requestId) {
+		List<CoordinatesResponse> coordinatesResponses = coordinatesService.getCoordinatesByRequestId(requestId);
+		return new BaseResponse<>(coordinatesResponses);
 	}
 
-	@PutMapping("/{requestId}")
-	@Operation(summary = "코디 수정", description = "코디 정보를 수정합니다.")
-	public BaseResponse<Void> updateCoordinates(@PathVariable String requestId, @RequestBody CoordinatesRequest request) {
-		coordinatesService.updateCoordinates(requestId, request);
+	@PutMapping("/{coordinateId}")
+	@Operation(summary = "코디 수정", description = "특정 코디 정보를 수정합니다.")
+	public BaseResponse<Void> updateCoordinates(@PathVariable Long coordinateId, @RequestBody CoordinatesRequest request) {
+		coordinatesService.updateCoordinates(coordinateId, request);
 		return new BaseResponse<>();
 	}
 
-	@DeleteMapping("/{requestId}")
-	@Operation(summary = "코디 삭제", description = "코디를 삭제합니다.")
-	public BaseResponse<Void> deleteCoordinates(@PathVariable String requestId) {
-		coordinatesService.deleteCoordinates(requestId);
+	@DeleteMapping("/{coordinateId}")
+	@Operation(summary = "코디 삭제", description = "특정 코디를 삭제합니다.")
+	public BaseResponse<Void> deleteCoordinates(@PathVariable Long coordinateId) {
+		coordinatesService.deleteCoordinates(coordinateId);
 		return new BaseResponse<>();
 	}
 }
