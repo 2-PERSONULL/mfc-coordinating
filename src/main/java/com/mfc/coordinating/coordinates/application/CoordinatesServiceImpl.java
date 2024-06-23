@@ -24,7 +24,6 @@ public class CoordinatesServiceImpl implements CoordinatesService {
 	private final CoordinatesImageRepository coordinatesImageRepository;
 	//private final KafkaTemplate<String, Object> kafkaTemplate;
 
-
 	@Override
 	@Transactional
 	public List<Long> createCoordinates(List<CoordinatesRequest> requests) {
@@ -40,7 +39,7 @@ public class CoordinatesServiceImpl implements CoordinatesService {
 			saveCoordinatesImages(coordinates, request.getImages());
 		}
 
-		String requestId = requests.get(0).getRequestId();
+		//String requestId = requests.get(0).getRequestId();
 		//kafkaTemplate.send("coordinates-submitted", String.valueOf(requestId));
 
 		return savedCoordinates.stream()
@@ -50,16 +49,25 @@ public class CoordinatesServiceImpl implements CoordinatesService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public CoordinatesResponse getCoordinatesById(String id) {
-		Coordinates coordinates = findCoordinatesByRequestId(id);
-		List<CoordinatesImage> coordinatesImages = coordinatesImageRepository.findByCoordinatesId(coordinates.getId());
-		return CoordinatesResponse.from(coordinates, coordinatesImages);
+	public List<CoordinatesResponse> getCoordinatesByRequestId(String requestId) {
+		List<Coordinates> coordinatesList = coordinatesRepository.findByRequestId(requestId);
+		if (coordinatesList.isEmpty()) {
+			throw new BaseException(BaseResponseStatus.COORDINATES_NOT_FOUND);
+		}
+		return coordinatesList.stream()
+			.map(coordinates -> {
+				List<CoordinatesImage> images = coordinatesImageRepository.findByCoordinatesId(coordinates.getId());
+				return CoordinatesResponse.from(coordinates, images);
+			})
+			.collect(Collectors.toList());
 	}
 
 	@Override
 	@Transactional
-	public void updateCoordinates(String id, CoordinatesRequest request) {
-		Coordinates coordinates = findCoordinatesByRequestId(id);
+	public void updateCoordinates(Long coordinateId, CoordinatesRequest request) {
+		Coordinates coordinates = coordinatesRepository.findById(coordinateId)
+			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATES_NOT_FOUND));
+
 		coordinates.update(
 			request.getCategory(),
 			request.getBrand(),
@@ -67,18 +75,17 @@ public class CoordinatesServiceImpl implements CoordinatesService {
 			request.getUrl(),
 			request.getComment()
 		);
+
 		saveCoordinatesImages(coordinates, request.getImages());
 	}
 
 	@Override
 	@Transactional
-	public void deleteCoordinates(String id) {
-		coordinatesRepository.deleteByRequestId(id);
-	}
-
-	private Coordinates findCoordinatesByRequestId(String id) {
-		return coordinatesRepository.findByRequestId(id)
-			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATES_NOT_FOUND));
+	public void deleteCoordinates(Long coordinateId) {
+		if (!coordinatesRepository.existsById(coordinateId)) {
+			throw new BaseException(BaseResponseStatus.COORDINATES_NOT_FOUND);
+		}
+		coordinatesRepository.deleteById(coordinateId);
 	}
 
 	private Coordinates mapToCoordinates(CoordinatesRequest request) {
