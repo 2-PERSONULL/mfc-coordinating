@@ -53,6 +53,9 @@ public class RequestMapper {
 		return MyRequestListResponse.builder()
 			.requestId(requests.getRequestId())
 			.title(requests.getTitle())
+			.created_date(requests.getCreatedDate())
+			.description(requests.getDescription())
+			.situation(requests.getSituation())
 			.build();
 	}
 }

@@ -19,7 +19,7 @@ public class CoordinatesResponse {
 	private String url;
 	private String comment;
 	private List<String> images;
-	private Long requestHistoryId;
+	private String requestId;
 
 	public static CoordinatesResponse from(Coordinates coordinates, List<CoordinatesImage> coordinatesImages) {
 		return CoordinatesResponse.builder()
@@ -32,7 +32,7 @@ public class CoordinatesResponse {
 			.images(coordinatesImages.stream()
 				.map(CoordinatesImage::getImageUrl)
 				.toList())
-			.requestHistoryId(coordinates.getRequestHistoryId())
+			.requestId(coordinates.getRequestId())
 			.build();
 	}
 }

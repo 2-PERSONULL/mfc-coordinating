@@ -13,10 +13,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TradeEventProducer {
 
-	private final KafkaTemplate<String, Object> kafkaTemplate;
+	private final KafkaTemplate<String, TradeSettledEventDto> tradeSettledKafkaTemplate;
 
 	public void sendTradeSettledEvent(String userUuid, String partnerUuid, Double amount, Long tradeId, LocalDate dueDate) {
-		TradeSettledEventDto eventDto = new TradeSettledEventDto(userUuid, partnerUuid, dueDate,amount, tradeId);
-		kafkaTemplate.send("partner-completion", eventDto);
+		TradeSettledEventDto eventDto = new TradeSettledEventDto(userUuid, partnerUuid, dueDate, amount, tradeId);
+		tradeSettledKafkaTemplate.send("partner-completion", eventDto);
 	}
 }
