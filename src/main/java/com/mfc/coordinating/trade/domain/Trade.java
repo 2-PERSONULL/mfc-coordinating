@@ -62,7 +62,7 @@ public class Trade extends BaseEntity {
 		this.totalPrice = totalPrice;
 		this.dueDate = dueDate;
 		this.requestId = requestId;
-		this.status = TradeStatus.TRADE_PAID;
+		this.status = TradeStatus.TRADE_NOT_PAID;
 		this.isCoordinatesSubmitted = false;
 	}
 

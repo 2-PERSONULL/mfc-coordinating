@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class CoordinatesServiceImpl implements CoordinatesService {
 	private final CoordinatesRepository coordinatesRepository;
 	private final CoordinatesImageRepository coordinatesImageRepository;
-	private final KafkaTemplate<String, Object> kafkaTemplate;
+	//private final KafkaTemplate<String, Object> kafkaTemplate;
 
 
 	@Override
@@ -41,8 +41,8 @@ public class CoordinatesServiceImpl implements CoordinatesService {
 			saveCoordinatesImages(coordinates, request.getImages());
 		}
 
-		Long requestHistoryId = requests.get(0).getRequestHistoryId();
-		kafkaTemplate.send("coordinates-submitted", String.valueOf(requestHistoryId));
+		String requestId = requests.get(0).getRequestId();
+		//kafkaTemplate.send("coordinates-submitted", String.valueOf(requestId));
 
 		return savedCoordinates.stream()
 			.map(Coordinates::getId)
@@ -89,7 +89,7 @@ public class CoordinatesServiceImpl implements CoordinatesService {
 			.budget(request.getBudget())
 			.url(request.getUrl())
 			.comment(request.getComment())
-			.requestHistoryId(request.getRequestHistoryId())
+			.requestId(request.getRequestId())
 			.build();
 	}
 

@@ -8,16 +8,19 @@ import com.mfc.coordinating.trade.domain.Trade;
 import com.mfc.coordinating.trade.infrastructure.TradeRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TradeExpiredEventConsumer {
 
 	private final TradeService tradeService;
 	private final TradeRepository tradeRepository;
 
-	@KafkaListener(topics = "expired-requests", groupId = "trade-expired-group")
+	@KafkaListener(topics = "expired-requests", groupId = "trade-expired-group", containerFactory = "longKafkaListenerContainerFactory")
 	public void consumeTradeExpiredEvent(Long tradeId) {
+		log.info("Received expired trade ID: {}", tradeId);
 		tradeService.handleTradeExpired(tradeId);
 	}
 
@@ -30,5 +33,6 @@ public class TradeExpiredEventConsumer {
 			.orElseThrow(() -> new IllegalStateException("Trade not found"));
 		trade.tradeSettled();
 		tradeRepository.save(trade);
+		log.info("Trade settled for requestId: {} and partnerId: {}", requestId, partnerId);
 	}
 }

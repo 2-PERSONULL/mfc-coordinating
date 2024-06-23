@@ -30,8 +30,8 @@ public class TradeServiceImpl implements TradeService {
 		}
 		Trade trade = mapToEntity(tradeRequest);
 		Trade createdTrade = tradeRepository.save(trade);
-		// tradeEventProducer.sendTradeCreatedEvent(tradeRequest.getUserId(), tradeRequest.getPartnerId(),
-		// 	tradeRequest.getTotalPrice(), createdTrade.getTradeId(), trade);
+		tradeEventProducer.sendTradeSettledEvent(tradeRequest.getUserId(), tradeRequest.getPartnerId(),
+			tradeRequest.getTotalPrice(), createdTrade.getTradeId(), tradeRequest.getDueDate());
 		return mapToResponse(createdTrade);
 	}
 

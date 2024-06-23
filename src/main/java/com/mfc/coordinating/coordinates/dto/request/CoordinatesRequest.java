@@ -16,5 +16,5 @@ public class CoordinatesRequest {
 	private String url;
 	private String comment;
 	private List<String> images;
-	private Long requestHistoryId;
+	private String requestId;
 }
