@@ -1,9 +1,10 @@
 package com.mfc.coordinating.reviews.application;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,25 +26,9 @@ public class ReviewsServiceImpl implements ReviewsService {
 	@Override
 	@Transactional
 	public void createReview(ReviewsRequest request) {
-		Reviews review = Reviews.builder()
-			.requestId(request.getRequestId())
-			.userId(request.getUserId())
-			.partnerId(request.getPartnerId())
-			.rating(request.getRating())
-			.comment(request.getComment())
-			.build();
-
-		List<ReviewImage> reviewImages = request.getReviewImage().stream()
-			.map(ReviewImage::new)
-			.toList();
-
-		review.updateReviewImage(reviewImages);
-
-		// 리뷰 저장
+		Reviews review = buildReviewFromRequest(request);
 		reviewsRepository.save(review);
-
-		// 직접리뷰 업데이트
-		reviewEventProducer.publishCreateReviewEvent(request.getPartnerId(), request.getRating());
+		publishReviewEvent(request.getPartnerId(), request.getRating());
 	}
 
 	@Override
@@ -51,17 +36,13 @@ public class ReviewsServiceImpl implements ReviewsService {
 	public void updateReview(Long reviewId, String comment, List<String> reviewImageUrls) {
 		Reviews review = getReviewById(reviewId);
 		review.updateComment(comment);
-
-		List<ReviewImage> reviewImages = reviewImageUrls.stream()
-			.map(ReviewImage::new)
-			.toList();
-
-		review.updateReviewImage(reviewImages);
+		review.updateReviewImage(convertToReviewImages(reviewImageUrls));
 	}
+
 	@Override
 	@Transactional(readOnly = true)
 	public Page<Reviews> getReviewsByPartner(String partnerId, int page, int pageSize) {
-		return reviewsRepository.findByPartnerId(partnerId, Pageable.ofSize(pageSize).withPage(page));
+		return reviewsRepository.findByPartnerId(partnerId, PageRequest.of(page, pageSize));
 	}
 
 	@Override
@@ -78,4 +59,28 @@ public class ReviewsServiceImpl implements ReviewsService {
 		reviewsRepository.delete(review);
 	}
 
+	private Reviews buildReviewFromRequest(ReviewsRequest request) {
+		Reviews review = Reviews.builder()
+			.requestId(request.getRequestId())
+			.userId(request.getUserId())
+			.partnerId(request.getPartnerId())
+			.rating(request.getRating())
+			.comment(request.getComment())
+			.build();
+
+		List<ReviewImage> reviewImages = convertToReviewImages(request.getReviewImage());
+		review.updateReviewImage(reviewImages);
+
+		return review;
+	}
+
+	private List<ReviewImage> convertToReviewImages(List<String> imageUrls) {
+		return imageUrls.stream()
+			.map(ReviewImage::new)
+			.collect(Collectors.toList());
+	}
+
+	private void publishReviewEvent(String partnerId, Short rating) {
+		reviewEventProducer.publishCreateReviewEvent(partnerId, rating);
+	}
 }

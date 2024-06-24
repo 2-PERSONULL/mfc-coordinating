@@ -39,17 +39,20 @@ public class Coordinates {
 	private String comment;
 
 	@Column(nullable = false)
-	private String requestId; // 히스토리 아이디로 변경
+	private String requestId;
 
+	@Column(nullable = false)
+	private String partnerId;
 	@Builder
 	public Coordinates(CoordinateCategory category, String brand,
-		Double budget, String url, String comment, String requestId) {
+		Double budget, String url, String comment, String requestId, String partnerId) {
 		this.category = category;
 		this.brand = brand;
 		this.budget = budget;
 		this.url = url;
 		this.comment = comment;
 		this.requestId = requestId;
+		this.partnerId = partnerId;
 	}
 
 	public void update(CoordinateCategory category, String brand,
@@ -60,4 +63,5 @@ public class Coordinates {
 		this.url = url;
 		this.comment = comment;
 	}
+
 }
