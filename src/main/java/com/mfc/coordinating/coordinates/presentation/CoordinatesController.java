@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,8 +28,9 @@ public class CoordinatesController {
 
 	@PostMapping
 	@Operation(summary = "코디 생성", description = "새로운 코디를 여러 개 생성합니다.")
-	public BaseResponse<List<Long>> createCoordinates(@RequestBody List<CoordinatesRequest> requests) {
-		List<Long> coordinatesIds = coordinatesService.createCoordinates(requests);
+	public BaseResponse<List<Long>> createCoordinates(@RequestBody List<CoordinatesRequest> requests,
+		@RequestHeader("Partner-UUID") String partnerUuid) {
+		List<Long> coordinatesIds = coordinatesService.createCoordinates(requests, partnerUuid);
 		return new BaseResponse<>(coordinatesIds);
 	}
 

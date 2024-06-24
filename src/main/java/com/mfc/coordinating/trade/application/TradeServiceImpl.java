@@ -38,14 +38,14 @@ public class TradeServiceImpl implements TradeService {
 	@Override
 	@Transactional(readOnly = true)
 	public TradeResponse getTradeById(Long id, String uuid) {
-		Trade confirms = tradeRepository.findById(id)
+		Trade trade = tradeRepository.findById(id)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.CONFIRMS_NOT_FOUND));
 
-		if (!confirms.getPartnerId().equals(uuid) && !confirms.getUserId().equals(uuid)) {
+		if (!trade.getPartnerId().equals(uuid) && !trade.getUserId().equals(uuid)) {
 			throw new BaseException(BaseResponseStatus.UNAUTHORIZED_ACCESS);
 		}
 
-		return mapToResponse(confirms);
+		return mapToResponse(trade);
 	}
 
 	@Override
@@ -77,8 +77,8 @@ public class TradeServiceImpl implements TradeService {
 	}
 
 	@Override
-	public void updateTradeStatus(Long id, String userUuid) {
-		Trade trade = tradeRepository.findById(id)
+	public void updateTradeStatus(String requestId, String userUuid) {
+		Trade trade = tradeRepository.findByRequestId(requestId)
 			.orElseThrow(() -> new BaseException(BaseResponseStatus.CONFIRMS_NOT_FOUND));
 
 		if (!trade.getUserId().equals(userUuid)) {
