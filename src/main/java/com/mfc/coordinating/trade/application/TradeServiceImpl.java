@@ -31,7 +31,7 @@ public class TradeServiceImpl implements TradeService {
 		Trade trade = mapToEntity(tradeRequest);
 		Trade createdTrade = tradeRepository.save(trade);
 		tradeEventProducer.sendTradeSettledEvent(tradeRequest.getUserId(), tradeRequest.getPartnerId(),
-			tradeRequest.getTotalPrice(), createdTrade.getTradeId(), tradeRequest.getDueDate());
+			tradeRequest.getTotalPrice(), createdTrade.getTradeId(), tradeRequest.getDueDate(), tradeRequest.getRequestId());
 		return mapToResponse(createdTrade);
 	}
 
@@ -87,7 +87,7 @@ public class TradeServiceImpl implements TradeService {
 		// dirty checking
 		trade.tradeSettled();
 		tradeEventProducer.sendTradeSettledEvent(trade.getUserId(), trade.getPartnerId(),
-			trade.getTotalPrice(), trade.getTradeId(), trade.getDueDate());
+			trade.getTotalPrice(), trade.getTradeId(), trade.getDueDate(), trade.getRequestId());
 
 	}
 

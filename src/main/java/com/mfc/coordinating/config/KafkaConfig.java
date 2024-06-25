@@ -138,6 +138,20 @@ public class KafkaConfig {
 		return createListenerContainerFactory(coordinatesSubmittedConsumerFactory());
 	}
 
+	@Bean
+	public ConsumerFactory<String, TradeSettledEventDto> TradeSettledConsumerFactory() {
+		return new DefaultKafkaConsumerFactory<>(
+			getCommonConsumerConfig(),
+			new StringDeserializer(),
+			new JsonDeserializer<>(TradeSettledEventDto.class, false)
+		);
+	}
+
+	@Bean
+	public ConcurrentKafkaListenerContainerFactory<String, TradeSettledEventDto> tradeSettledKafkaListenerContainerFactory() {
+		return createListenerContainerFactory(TradeSettledConsumerFactory());
+	}
+
 	private <T> ConcurrentKafkaListenerContainerFactory<String, T> createListenerContainerFactory(ConsumerFactory<String, T> consumerFactory) {
 		ConcurrentKafkaListenerContainerFactory<String, T> factory = new ConcurrentKafkaListenerContainerFactory<>();
 		factory.setConsumerFactory(consumerFactory);
