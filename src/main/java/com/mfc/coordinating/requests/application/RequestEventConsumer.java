@@ -8,6 +8,7 @@ import com.mfc.coordinating.requests.domain.Requests;
 import com.mfc.coordinating.requests.dto.kafka.PaymentCompletedEvent;
 import com.mfc.coordinating.requests.enums.RequestsStates;
 import com.mfc.coordinating.requests.infrastructure.RequestsRepository;
+import com.mfc.coordinating.trade.dto.kafka.TradeSettledEventDto;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +42,19 @@ public class RequestEventConsumer {
 			.orElseThrow(() -> new RuntimeException("Request not found with id: " + requestId));
 
 		request.updatePartnerStatus(partnerId, RequestsStates.COORDINATE_RECEIVED);
+		log.info("Request coordinate received: {}", request);
+		requestsRepository.save(request);
+	}
+
+	@KafkaListener(topics = "partner-completion", containerFactory = "tradeSettledKafkaListenerContainerFactory")
+	public void handleTradeSettledEvent(TradeSettledEventDto event) {
+		String requestId = event.getRequestId();
+		String partnerId = event.getPartnerUuid();
+
+		Requests request = requestsRepository.findByRequestId(requestId)
+			.orElseThrow(() -> new RuntimeException("Request not found with id: " + requestId));
+
+		request.updatePartnerStatus(partnerId, RequestsStates.CLOSED);
 		log.info("Request coordinate received: {}", request);
 		requestsRepository.save(request);
 	}

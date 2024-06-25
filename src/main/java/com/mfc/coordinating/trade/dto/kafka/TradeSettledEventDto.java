@@ -17,4 +17,5 @@ public class TradeSettledEventDto {
 	private LocalDate dueDate;
 	private Double amount;
 	private Long tradeId;
+	private String requestId;
 }

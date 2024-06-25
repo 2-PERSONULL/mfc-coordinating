@@ -9,5 +9,5 @@ public enum RequestsStates {
 	PROPOSALREJECT,		// 거래 거절
 	CONFIRMED,			// 거래 확정
 	COORDINATE_RECEIVED, // 코디 받은 상태
-	CLOSING				// 마감(코디완료)
+	CLOSED				// 마감(코디완료)
 }
