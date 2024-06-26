@@ -8,6 +8,8 @@ import com.mfc.coordinating.requests.domain.Requests;
 import com.mfc.coordinating.requests.dto.kafka.PaymentCompletedEvent;
 import com.mfc.coordinating.requests.enums.RequestsStates;
 import com.mfc.coordinating.requests.infrastructure.RequestsRepository;
+import com.mfc.coordinating.trade.application.TradeEventProducer;
+import com.mfc.coordinating.trade.dto.kafka.PartnerSummaryDto;
 import com.mfc.coordinating.trade.dto.kafka.TradeDueDateEventDto;
 import com.mfc.coordinating.trade.dto.kafka.TradeSettledEventDto;
 
@@ -20,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RequestEventConsumer {
 
 	private final RequestsRepository requestsRepository;
+	private final TradeEventProducer producer;
 
 	@KafkaListener(topics = "payment-completed", groupId = "request-expired-group", containerFactory = "kafkaListenerContainerFactory")
 	public void consumePaymentCompletedEvent(PaymentCompletedEvent event) {
@@ -72,6 +75,11 @@ public class RequestEventConsumer {
 
 		request.updatePartnerStatus(partnerId, RequestsStates.CLOSED);
 		log.info("Request closed: {}", request);
-		requestsRepository.save(request);
+
+		Requests updateRequest  = requestsRepository.save(request);
+		producer.closeRequest(PartnerSummaryDto.builder()
+						.partnerId(partnerId)
+						.build());
+
 	}
 }
