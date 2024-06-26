@@ -8,6 +8,7 @@ import com.mfc.coordinating.requests.domain.Requests;
 import com.mfc.coordinating.requests.dto.kafka.PaymentCompletedEvent;
 import com.mfc.coordinating.requests.enums.RequestsStates;
 import com.mfc.coordinating.requests.infrastructure.RequestsRepository;
+import com.mfc.coordinating.trade.dto.kafka.TradeDueDateEventDto;
 import com.mfc.coordinating.trade.dto.kafka.TradeSettledEventDto;
 
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,21 @@ public class RequestEventConsumer {
 		requestsRepository.save(request);
 	}
 
+	@KafkaListener(topics = "trade-due-date", containerFactory = "tradeDueDateEventKafkaListenerContainerFactory")
+	public void handleTradeDueDateEvent(TradeDueDateEventDto event) {
+		String requestId = event.getRequestId();
+		String partnerId = event.getPartnerUuid();
+
+		Requests request = requestsRepository.findByRequestId(requestId)
+			.orElseThrow(() -> new RuntimeException("Request not found with id: " + requestId));
+
+		request.updatePartnerStatus(partnerId, RequestsStates.TRADE_CREATED);
+		request.updateDeadline(partnerId,event.getDueDate());
+		log.info("Trade created for request: {}, Partner: {}, Deadline set to: {}",
+			request, partnerId, event.getDueDate());
+		requestsRepository.save(request);
+	}
+
 	@KafkaListener(topics = "coordinates-submitted-topic", containerFactory = "coordinatesSubmittedKafkaListenerContainerFactory")
 	public void handleCoordinatesSubmitted(CoordinatesSubmittedEventDto event) {
 		String requestId = event.getRequestId();
@@ -55,7 +71,7 @@ public class RequestEventConsumer {
 			.orElseThrow(() -> new RuntimeException("Request not found with id: " + requestId));
 
 		request.updatePartnerStatus(partnerId, RequestsStates.CLOSED);
-		log.info("Request coordinate received: {}", request);
+		log.info("Request closed: {}", request);
 		requestsRepository.save(request);
 	}
 }

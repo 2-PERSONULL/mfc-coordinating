@@ -24,6 +24,7 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 import com.mfc.coordinating.coordinates.dto.kafka.CoordinatesSubmittedEventDto;
 import com.mfc.coordinating.requests.dto.kafka.PaymentCompletedEvent;
 import com.mfc.coordinating.reviews.dto.kafka.ReviewSummaryDto;
+import com.mfc.coordinating.trade.dto.kafka.TradeDueDateEventDto;
 import com.mfc.coordinating.trade.dto.kafka.TradeSettledEventDto;
 
 @EnableKafka
@@ -92,6 +93,11 @@ public class KafkaConfig {
 		return new KafkaTemplate<>(createProducerFactory());
 	}
 
+	@Bean
+	public KafkaTemplate<String, TradeDueDateEventDto> tradeDueDateKafkaTemplate() {
+		return new KafkaTemplate<>(createProducerFactory());
+	}
+
 	// Consumer configurations
 
 	@Bean
@@ -150,6 +156,20 @@ public class KafkaConfig {
 	@Bean
 	public ConcurrentKafkaListenerContainerFactory<String, TradeSettledEventDto> tradeSettledKafkaListenerContainerFactory() {
 		return createListenerContainerFactory(TradeSettledConsumerFactory());
+	}
+
+	@Bean
+	public ConsumerFactory<String, TradeDueDateEventDto> tradeDueDateConsumerFactory() {
+		return new DefaultKafkaConsumerFactory<>(
+			getCommonConsumerConfig(),
+			new StringDeserializer(),
+			new JsonDeserializer<>(TradeDueDateEventDto.class, false)
+		);
+	}
+
+	@Bean
+	public ConcurrentKafkaListenerContainerFactory<String, TradeDueDateEventDto> tradeDueDateEventKafkaListenerContainerFactory() {
+		return createListenerContainerFactory(tradeDueDateConsumerFactory());
 	}
 
 	private <T> ConcurrentKafkaListenerContainerFactory<String, T> createListenerContainerFactory(ConsumerFactory<String, T> consumerFactory) {

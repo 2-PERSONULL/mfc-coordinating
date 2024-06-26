@@ -1,6 +1,8 @@
 package com.mfc.coordinating.requests.domain;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,6 +62,18 @@ public class Requests {
 		this.createdDate = Instant.now();
 	}
 
+	public void updateDeadline(String partnerId, LocalDate newDeadline) {
+		Instant deadlineInstant = newDeadline.atStartOfDay().toInstant(ZoneOffset.UTC);
+		for (RequestPartner partner : this.partner) {
+			if (partner.getPartnerId().equals(partnerId)) {
+				partner.updateDeadline(deadlineInstant);
+				return;
+			}
+		}
+		throw new IllegalArgumentException("Partner not found with id: " + partnerId);
+	}
+
+
 	public void addPartnerInfo(String partnerId, RequestsStates status, Instant deadline) {
 		this.partner.add(new RequestPartner(partnerId, status, deadline));
 	}
@@ -97,7 +111,11 @@ public class Requests {
 		public void updateConfirmedProposal(Double price, Instant confirmDate) {
 			this.confirmedPrice = price;
 			this.deadline = confirmDate;
-			this.status = RequestsStates.WAITING;
+			this.status = RequestsStates.WRITING;
+		}
+
+		public void updateDeadline(Instant newDeadline) {
+			this.deadline = newDeadline;
 		}
 
 	}

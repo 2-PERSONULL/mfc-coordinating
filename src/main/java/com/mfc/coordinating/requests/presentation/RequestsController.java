@@ -304,15 +304,4 @@ public class RequestsController {
 		return new BaseResponse<>();
 	}
 
-	// @PutMapping("/confirm/{requestId}/{partnerId}")
-	// @Operation(summary = "파트너 확정 제안", description = "파트너가 코디 요청서에 대한 확정 제안을 합니다.")
-	// public BaseResponse<Void> confirmProposal(
-	// 	@PathVariable String requestId,
-	// 	@PathVariable String partnerId,
-	// 	@RequestBody ConfirmProposalRequest request
-	// ) {
-	// 	requestsService.confirmProposal(requestId, partnerId, request.getPrice(), request.getConfirmDate());
-	// 	return new BaseResponse<>();
-	// }
-
 }
