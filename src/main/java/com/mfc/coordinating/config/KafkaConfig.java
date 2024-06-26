@@ -24,6 +24,7 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 import com.mfc.coordinating.coordinates.dto.kafka.CoordinatesSubmittedEventDto;
 import com.mfc.coordinating.requests.dto.kafka.PaymentCompletedEvent;
 import com.mfc.coordinating.reviews.dto.kafka.ReviewSummaryDto;
+import com.mfc.coordinating.trade.dto.kafka.PartnerSummaryDto;
 import com.mfc.coordinating.trade.dto.kafka.TradeDueDateEventDto;
 import com.mfc.coordinating.trade.dto.kafka.TradeSettledEventDto;
 
@@ -95,6 +96,11 @@ public class KafkaConfig {
 
 	@Bean
 	public KafkaTemplate<String, TradeDueDateEventDto> tradeDueDateKafkaTemplate() {
+		return new KafkaTemplate<>(createProducerFactory());
+	}
+
+	@Bean
+	public KafkaTemplate<String, PartnerSummaryDto> closeRequestKafkaTemplate() {
 		return new KafkaTemplate<>(createProducerFactory());
 	}
 
