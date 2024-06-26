@@ -91,6 +91,7 @@ public class TradeServiceImpl implements TradeService {
 		tradeEventProducer.sendTradeSettledEvent(trade.getUserId(), trade.getPartnerId(),
 			trade.getTotalPrice(), trade.getTradeId(), trade.getDueDate(), trade.getRequestId());
 
+
 	}
 
 	@KafkaListener(topics = "coordinates-submitted-topic", groupId = "trade-coordinates-submitted-group")
