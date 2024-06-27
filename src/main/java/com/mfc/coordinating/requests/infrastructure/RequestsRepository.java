@@ -21,7 +21,7 @@ public interface RequestsRepository extends MongoRepository<Requests, String> {
 
 	Optional<Requests> findByRequestIdAndUserId(String requestId, String userId);
 
-	@Query("{'partner': {$elemMatch: {'partnerId': ?0, $or: [{'status': ?1}, {$and: [{'status': {$exists: false}}, {?1: null}]}]}}}")
+	@Query("{'partner': {$elemMatch: {'partnerId': ?0, $or: [{'status': ?1}, {?1: null}]}}}")
 	Page<Requests> findByPartnerId(String partnerId, RequestsStates status, Pageable pageable);
 
 	@Query("{'userId': ?0, $or: [{'partner.status': ?1}, {$and: [{'partner.status': {$exists: false}}, {?1: null}]}]}")
