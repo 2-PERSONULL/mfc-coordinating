@@ -9,7 +9,6 @@ import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.mfc.coordinating.requests.domain.Requests;
-import com.mfc.coordinating.requests.enums.RequestsStates;
 
 @Repository
 public interface RequestsRepository extends MongoRepository<Requests, String> {
@@ -21,9 +20,6 @@ public interface RequestsRepository extends MongoRepository<Requests, String> {
 
 	Optional<Requests> findByRequestIdAndUserId(String requestId, String userId);
 
-	@Query("{'partner': {$elemMatch: {'partnerId': ?0, $or: [{'status': ?1}, {?1: null}]}}}")
-	Page<Requests> findByPartnerId(String partnerId, RequestsStates status, Pageable pageable);
-
-	@Query("{'userId': ?0, $or: [{'partner.status': ?1}, {$and: [{'partner.status': {$exists: false}}, {?1: null}]}]}")
-	Page<Requests> findByUserIdAndStatus(String userId, RequestsStates status, Pageable pageable);
+	@Query("{'partner.partnerId': ?0}")
+	Page<Requests> findByPartnerId(String partnerId, Pageable pageable);
 }
