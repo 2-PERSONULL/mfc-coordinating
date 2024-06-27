@@ -14,15 +14,16 @@ import com.mfc.coordinating.requests.enums.RequestsStates;
 @Repository
 public interface RequestsRepository extends MongoRepository<Requests, String> {
 
+	@Query("{'userId': ?0}")
 	Page<Requests> findByUserId(String userId, Pageable pageable);
 
 	Optional<Requests> findByRequestId(String requestId);
 
 	Optional<Requests> findByRequestIdAndUserId(String requestId, String userId);
 
-	@Query("{'partner': {$elemMatch: {'partnerId': ?0, $or: [{'status': ?1}, {'status': null}]}}}")
+	@Query("{'partner': {$elemMatch: {'partnerId': ?0, $or: [{'status': ?1}, {$and: [{'status': {$exists: false}}, {?1: null}]}]}}}")
 	Page<Requests> findByPartnerId(String partnerId, RequestsStates status, Pageable pageable);
 
-	@Query("{'userId': ?0, 'partner': {$elemMatch: {$or: [{'status': ?1}, {'status': null}]}}}")
+	@Query("{'userId': ?0, $or: [{'partner.status': ?1}, {$and: [{'partner.status': {$exists: false}}, {?1: null}]}]}")
 	Page<Requests> findByUserIdAndStatus(String userId, RequestsStates status, Pageable pageable);
 }
