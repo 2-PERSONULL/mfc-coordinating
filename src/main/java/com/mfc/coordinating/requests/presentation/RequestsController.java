@@ -233,9 +233,10 @@ public class RequestsController {
 		@RequestHeader String uuid,
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "30") int pageSize,
-		@RequestParam(defaultValue = "LATEST") RequestsListSortType sortType
+		@RequestParam(defaultValue = "LATEST") RequestsListSortType sortType,
+		@RequestParam(required = false) RequestsStates status
 	) {
-		List<RequestsListResDto> requestsList = requestsService.getPartnerRequestsList(page, pageSize, sortType, uuid);
+		List<RequestsListResDto> requestsList = requestsService.getPartnerRequestsList(page, pageSize, sortType, uuid, status);
 		return new BaseResponse<>(requestsList);
 	}
 
@@ -245,9 +246,10 @@ public class RequestsController {
 		@RequestHeader String uuid,
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "30") int pageSize,
-		@RequestParam(defaultValue = "LATEST") RequestsListSortType sortType
+		@RequestParam(defaultValue = "LATEST") RequestsListSortType sortType,
+		@RequestParam(required = false) RequestsStates status
 	) {
-		List<RequestsListResDto> requestsList = requestsService.getUserRequestsList(page, pageSize, sortType, uuid);
+		List<RequestsListResDto> requestsList = requestsService.getUserRequestsList(page, pageSize, sortType, uuid, status);
 		return new BaseResponse<>(requestsList);
 	}
 

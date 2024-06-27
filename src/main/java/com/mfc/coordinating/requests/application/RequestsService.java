@@ -3,7 +3,6 @@ package com.mfc.coordinating.requests.application;
 import java.time.Instant;
 import java.util.List;
 
-import org.springframework.transaction.annotation.Transactional;
 
 import com.mfc.coordinating.requests.dto.req.RequestsCreateReqDto;
 import com.mfc.coordinating.requests.dto.req.RequestsUpdateReqDto;
@@ -43,7 +42,7 @@ public interface RequestsService {
 	 * @param partnerId 파트너 ID
 	 * @return 파트너별 코디 요청서 목록
 	 */
-	List<RequestsListResDto> getPartnerRequestsList(int page, int pageSize, RequestsListSortType sortType, String partnerId);
+	List<RequestsListResDto> getPartnerRequestsList(int page, int pageSize, RequestsListSortType sortType, String partnerId, RequestsStates status);
 
 	/**
 	 * 사용자별 코디 요청서 목록 조회
@@ -54,7 +53,8 @@ public interface RequestsService {
 	 * @param userId 사용자 ID
 	 * @return 사용자별 코디 요청서 목록
 	 */
-	List<RequestsListResDto> getUserRequestsList(int page, int pageSize, RequestsListSortType sortType, String userId);
+	List<RequestsListResDto> getUserRequestsList(int page, int pageSize, RequestsListSortType sortType, String userId, RequestsStates status);
+
 
 	/**
 	 * 코디 요청서 상세 정보 조회
@@ -90,16 +90,6 @@ public interface RequestsService {
 	 * @param deadline 제안 마감일
 	 */
 	void updateProposal(String requestId, String partnerId, String userId, Instant deadline);
-
-	/**
-	 * 파트너 확정 제안
-	 *
-	 * @param requestId 요청서 ID
-	 * @param partnerId 파트너 ID
-	 * @param price 제안 가격
-	 */
-	@Transactional
-	void confirmProposal(String requestId, String partnerId, Double price, Instant confirmDate);
 
 	/**
 	 * 파트너 응답 업데이트
