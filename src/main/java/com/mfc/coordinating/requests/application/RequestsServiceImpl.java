@@ -93,20 +93,22 @@ public class RequestsServiceImpl implements RequestsService {
 	}
 
 	@Override
-	public List<RequestsListResDto> getPartnerRequestsList(int page, int pageSize, RequestsListSortType sortType, String partnerId) {
+	public List<RequestsListResDto> getPartnerRequestsList(int page, int pageSize, RequestsListSortType sortType,
+		String partnerId, RequestsStates status) {
 		Pageable pageable = getPageable(page, pageSize, sortType);
-		Page<Requests> requestsPage = requestsRepository.findByPartnerId(partnerId, pageable);
+		Page<Requests> requestsPage = requestsRepository.findByPartnerId(partnerId, status, pageable);
 
 		return requestsPage.getContent().stream()
 			.map(request -> requestMapper.toRequestsListResDto(request, partnerId))
 			.filter(Objects::nonNull)
 			.toList();
 	}
+
 	@Override
 	public List<RequestsListResDto> getUserRequestsList(int page, int pageSize, RequestsListSortType sortType,
-		String userId) {
+		String userId, RequestsStates status) {
 		Pageable pageable = getPageable(page, pageSize, sortType);
-		Page<Requests> requestsPage = requestsRepository.findByUserId(userId, pageable);
+		Page<Requests> requestsPage = requestsRepository.findByUserIdAndStatus(userId, status, pageable);
 
 		return getRequestsListResDtos(requestsPage);
 	}
@@ -163,16 +165,6 @@ public class RequestsServiceImpl implements RequestsService {
 
 		// Kafka를 통해 파트너에게 알림 이벤트 발행
 		//requestsEventProducer.sendPartnerNotificationEvent(requestId, partnerId);
-	}
-
-	@Transactional
-	@Override
-	public void confirmProposal(String requestId, String partnerId, Double price, Instant confirmDate) {
-		Requests requests = requestsRepository.findByRequestId(requestId)
-			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
-
-		requests.updateConfirmedProposal(partnerId, price, confirmDate);
-		requestsRepository.save(requests);
 	}
 
 	@Transactional
