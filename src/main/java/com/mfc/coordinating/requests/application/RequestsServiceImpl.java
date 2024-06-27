@@ -45,7 +45,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RequestsServiceImpl implements RequestsService {
 	private final RequestsRepository requestsRepository;
 	private final RequestMapper requestMapper;
-    private final AuthClient authClient;
+	private final AuthClient authClient;
 	private final MemberClient memberClient;
 	private final RequestsEventProducer requestsEventProducer;
 
@@ -93,10 +93,9 @@ public class RequestsServiceImpl implements RequestsService {
 	}
 
 	@Override
-	public List<RequestsListResDto> getPartnerRequestsList(int page, int pageSize, RequestsListSortType sortType,
-		String partnerId, RequestsStates status) {
+	public List<RequestsListResDto> getPartnerRequestsList(int page, int pageSize, RequestsListSortType sortType, String partnerId) {
 		Pageable pageable = getPageable(page, pageSize, sortType);
-		Page<Requests> requestsPage = requestsRepository.findByPartnerId(partnerId, status, pageable);
+		Page<Requests> requestsPage = requestsRepository.findByPartnerId(partnerId, pageable);
 
 		return requestsPage.getContent().stream()
 			.map(request -> requestMapper.toRequestsListResDto(request, partnerId))
@@ -106,9 +105,9 @@ public class RequestsServiceImpl implements RequestsService {
 
 	@Override
 	public List<RequestsListResDto> getUserRequestsList(int page, int pageSize, RequestsListSortType sortType,
-		String userId, RequestsStates status) {
+		String userId) {
 		Pageable pageable = getPageable(page, pageSize, sortType);
-		Page<Requests> requestsPage = requestsRepository.findByUserIdAndStatus(userId, status, pageable);
+		Page<Requests> requestsPage = requestsRepository.findByUserId(userId, pageable);
 
 		return getRequestsListResDtos(requestsPage);
 	}
@@ -182,10 +181,10 @@ public class RequestsServiceImpl implements RequestsService {
 			members.add(uuid);
 
 			requestsEventProducer.createChatRoom(
-					CreateChatRoomDto.builder()
-							.requestId(requestId)
-							.members(members)
-							.build());
+				CreateChatRoomDto.builder()
+					.requestId(requestId)
+					.members(members)
+					.build());
 		}
 	}
 

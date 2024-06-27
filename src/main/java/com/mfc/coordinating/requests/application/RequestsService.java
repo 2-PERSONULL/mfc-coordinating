@@ -3,7 +3,6 @@ package com.mfc.coordinating.requests.application;
 import java.time.Instant;
 import java.util.List;
 
-
 import com.mfc.coordinating.requests.dto.req.RequestsCreateReqDto;
 import com.mfc.coordinating.requests.dto.req.RequestsUpdateReqDto;
 import com.mfc.coordinating.requests.dto.res.MyRequestListResponse;
@@ -42,7 +41,7 @@ public interface RequestsService {
 	 * @param partnerId 파트너 ID
 	 * @return 파트너별 코디 요청서 목록
 	 */
-	List<RequestsListResDto> getPartnerRequestsList(int page, int pageSize, RequestsListSortType sortType, String partnerId, RequestsStates status);
+	List<RequestsListResDto> getPartnerRequestsList(int page, int pageSize, RequestsListSortType sortType, String partnerId);
 
 	/**
 	 * 사용자별 코디 요청서 목록 조회
@@ -53,7 +52,7 @@ public interface RequestsService {
 	 * @param userId 사용자 ID
 	 * @return 사용자별 코디 요청서 목록
 	 */
-	List<RequestsListResDto> getUserRequestsList(int page, int pageSize, RequestsListSortType sortType, String userId, RequestsStates status);
+	List<RequestsListResDto> getUserRequestsList(int page, int pageSize, RequestsListSortType sortType, String userId);
 
 
 	/**
