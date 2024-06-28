@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import com.mfc.coordinating.requests.domain.Requests;
 
 @Repository
-public interface RequestsRepository extends MongoRepository<Requests, String> {
+public interface RequestsRepository extends MongoRepository<Requests, String>, CustomRequestsRepository {
 
 	@Query("{'userId': ?0}")
 	Page<Requests> findByUserId(String userId, Pageable pageable);
@@ -19,7 +19,4 @@ public interface RequestsRepository extends MongoRepository<Requests, String> {
 	Optional<Requests> findByRequestId(String requestId);
 
 	Optional<Requests> findByRequestIdAndUserId(String requestId, String userId);
-
-	@Query("{'partner.partnerId': ?0}")
-	Page<Requests> findByPartnerId(String partnerId, Pageable pageable);
 }
