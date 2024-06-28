@@ -41,7 +41,7 @@ public interface RequestsService {
 	 * @param partnerId 파트너 ID
 	 * @return 파트너별 코디 요청서 목록
 	 */
-	List<RequestsListResDto> getPartnerRequestsList(int page, int pageSize, RequestsListSortType sortType, String partnerId);
+	List<RequestsListResDto> getPartnerRequestsList(int page, int pageSize, RequestsListSortType sortType, String partnerId, RequestsStates status);
 
 	/**
 	 * 사용자별 코디 요청서 목록 조회
@@ -52,7 +52,7 @@ public interface RequestsService {
 	 * @param userId 사용자 ID
 	 * @return 사용자별 코디 요청서 목록
 	 */
-	List<RequestsListResDto> getUserRequestsList(int page, int pageSize, RequestsListSortType sortType, String userId);
+	List<RequestsListResDto> getUserRequestsList(int page, int pageSize, RequestsListSortType sortType, String userId, RequestsStates status);
 
 
 	/**
@@ -98,4 +98,13 @@ public interface RequestsService {
 	 * @param status 응답 상태
 	 */
 	void updatePartnerResponse(String requestId, String userId, RequestsStates status);
+
+	/**
+	 * 특정 요청에 대한 특정 파트너의 상태를 조회합니다.
+	 *
+	 * @param requestId 조회할 요청의 ID
+	 * @param partnerId 상태를 조회할 파트너의 ID
+	 * @return 해당 요청에 대한 파트너의 상태
+	 */
+	RequestsStates getRequestStatusForPartner(String requestId, String partnerId);
 }

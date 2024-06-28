@@ -51,7 +51,6 @@ public class RequestsServiceImpl implements RequestsService {
 
 	@Override
 	public void createRequests(RequestsCreateReqDto requestsCreateReqDto, String uuid) {
-
 		AuthInfoResponse auth_response = authClient.getAuthInfo(uuid);
 		AuthInfoRequestDto authInfoResponse = auth_response.getResult();
 
@@ -59,24 +58,16 @@ public class RequestsServiceImpl implements RequestsService {
 		UserInfoRequestDto userInfoResponse = member_response.getResult();
 
 		String userImageUrl = userInfoResponse.getUserImageUrl();
-
 		String userNickName = userInfoResponse.getUserNickName();
-
 		Short userGender = authInfoResponse.getUserGender();
-
 		LocalDate userBirth = authInfoResponse.getUserBirth();
-
 		int userAge = LocalDate.now().getYear() - userBirth.getYear();
 
-
-		// Requests 엔티티 생성 및 저장
 		Requests requests = getRequests(requestsCreateReqDto, uuid,
 			userImageUrl != null ? userImageUrl : "",
 			userNickName, userGender, userAge);
 
 		log.info("Requests 엔티티 저장 전: {}", requests.getMyImageUrls());
-
-
 		requestsRepository.save(requests);
 	}
 
@@ -93,9 +84,9 @@ public class RequestsServiceImpl implements RequestsService {
 	}
 
 	@Override
-	public List<RequestsListResDto> getPartnerRequestsList(int page, int pageSize, RequestsListSortType sortType, String partnerId) {
+	public List<RequestsListResDto> getPartnerRequestsList(int page, int pageSize, RequestsListSortType sortType, String partnerId, RequestsStates status) {
 		Pageable pageable = getPageable(page, pageSize, sortType);
-		Page<Requests> requestsPage = requestsRepository.findByPartnerId(partnerId, pageable);
+		Page<Requests> requestsPage = requestsRepository.findByPartnerIdAndStatus(partnerId, status, pageable);
 
 		return requestsPage.getContent().stream()
 			.map(request -> requestMapper.toRequestsListResDto(request, partnerId))
@@ -105,9 +96,9 @@ public class RequestsServiceImpl implements RequestsService {
 
 	@Override
 	public List<RequestsListResDto> getUserRequestsList(int page, int pageSize, RequestsListSortType sortType,
-		String userId) {
+		String userId, RequestsStates status) {
 		Pageable pageable = getPageable(page, pageSize, sortType);
-		Page<Requests> requestsPage = requestsRepository.findByUserId(userId, pageable);
+		Page<Requests> requestsPage = requestsRepository.findByUserIdAndStatus(userId, status, pageable);
 
 		return getRequestsListResDtos(requestsPage);
 	}
@@ -161,9 +152,6 @@ public class RequestsServiceImpl implements RequestsService {
 
 		requests.addPartnerInfo(partnerId, RequestsStates.NONERESPONSE, deadline);
 		requestsRepository.save(requests);
-
-		// Kafka를 통해 파트너에게 알림 이벤트 발행
-		//requestsEventProducer.sendPartnerNotificationEvent(requestId, partnerId);
 	}
 
 	@Transactional
@@ -186,6 +174,19 @@ public class RequestsServiceImpl implements RequestsService {
 					.members(members)
 					.build());
 		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public RequestsStates getRequestStatusForPartner(String requestId, String partnerId) {
+		Requests request = requestsRepository.findByRequestId(requestId)
+			.orElseThrow(() -> new BaseException(BaseResponseStatus.COORDINATING_REQUESTS_NOT_FOUND));
+
+		return request.getPartner().stream()
+			.filter(partner -> partner.getPartnerId().equals(partnerId))
+			.findFirst()
+			.map(Requests.RequestPartner::getStatus)
+			.orElseThrow(() -> new BaseException(BaseResponseStatus.NO_EXIST_MEMBERS));
 	}
 
 	private Pageable getPageable(int page, int pageSize, RequestsListSortType sortType) {
@@ -261,5 +262,4 @@ public class RequestsServiceImpl implements RequestsService {
 			.myImageUrls(requestsCreateReqDto.getMyImageUrls())
 			.build();
 	}
-
 }
