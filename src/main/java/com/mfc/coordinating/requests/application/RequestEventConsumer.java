@@ -24,16 +24,16 @@ public class RequestEventConsumer {
 	private final RequestsRepository requestsRepository;
 	private final TradeEventProducer producer;
 
-	@KafkaListener(topics = "payment-completed", groupId = "request-expired-group", containerFactory = "requestPaymentCompletedContainerFactory")
+	@KafkaListener(topics = "payment-completed", containerFactory = "requestPaymentCompletedContainerFactory")
 	public void consumePaymentCompletedEvent(PaymentCompletedEvent event) {
 		String requestId = event.getRequestId();
 		String partnerId = event.getPartnerId();
-
+		log.info("Request confirmed: {}", requestId);
+		log.info("Request confirmed: {}", partnerId);
 		Requests request = requestsRepository.findByRequestId(requestId)
 			.orElseThrow(() -> new RuntimeException("Request not found with id: " + requestId));
 
 		request.updatePartnerStatus(partnerId, RequestsStates.CONFIRMED);
-		log.info("Request confirmed: {}", request);
 		requestsRepository.save(request);
 	}
 

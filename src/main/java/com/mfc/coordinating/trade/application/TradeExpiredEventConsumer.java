@@ -24,11 +24,12 @@ public class TradeExpiredEventConsumer {
 		tradeService.handleTradeExpired(tradeId);
 	}
 
-	@KafkaListener(topics = "payment-completed", containerFactory = "kafkaListenerContainerFactory")
+	@KafkaListener(topics = "payment-completed", containerFactory = "paymentCompletedEventConcurrentKafkaListenerContainerFactory")
 	public void consumePaymentCompletedEvent(PaymentCompletedEvent event) {
 		String requestId = event.getRequestId();
 		String partnerId = event.getPartnerId();
-
+		log.info("Trade settled: {}", requestId);
+		log.info("Trade settled: {}", partnerId);
 		Trade trade = tradeRepository.findByRequestIdAndPartnerId(requestId, partnerId)
 			.orElseThrow(() -> new IllegalStateException("Trade not found"));
 		trade.tradeSettled();
