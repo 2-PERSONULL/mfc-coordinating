@@ -24,7 +24,7 @@ public class RequestEventConsumer {
 	private final RequestsRepository requestsRepository;
 	private final TradeEventProducer producer;
 
-	@KafkaListener(topics = "payment-completed", groupId = "request-expired-group", containerFactory = "kafkaListenerContainerFactory")
+	@KafkaListener(topics = "payment-completed", groupId = "request-expired-group", containerFactory = "requestPaymentCompletedContainerFactory")
 	public void consumePaymentCompletedEvent(PaymentCompletedEvent event) {
 		String requestId = event.getRequestId();
 		String partnerId = event.getPartnerId();
@@ -76,7 +76,7 @@ public class RequestEventConsumer {
 		request.updatePartnerStatus(partnerId, RequestsStates.CLOSED);
 		log.info("Request closed: {}", request);
 
-		Requests updateRequest  = requestsRepository.save(request);
+		requestsRepository.save(request);
 		producer.closeRequest(PartnerSummaryDto.builder()
 						.partnerId(partnerId)
 						.build());
