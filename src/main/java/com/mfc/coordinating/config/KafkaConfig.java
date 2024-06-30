@@ -150,7 +150,7 @@ public class KafkaConfig {
 
 	@Bean
 	public ConcurrentKafkaListenerContainerFactory<String, PaymentCompletedEvent> requestPaymentCompletedContainerFactory() {
-		return createListenerContainerFactory(paymentCompletedConsumerFactory());
+		return createListenerContainerFactory(requestPaymentCompletedConsumerFactory());
 	}
 
 	@Bean
