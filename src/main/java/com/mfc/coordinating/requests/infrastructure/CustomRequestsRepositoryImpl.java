@@ -62,20 +62,24 @@ public class CustomRequestsRepositoryImpl implements CustomRequestsRepository {
 	@Override
 	public Page<Requests> findByPartnerIdAndStatus(String partnerId, RequestsStates status, Pageable pageable) {
 		Criteria criteria = Criteria.where("partner.partnerId").is(partnerId);
+		if (status != null) {
+			criteria = criteria.and("partner.status").is(status);
+		}
 
 		List<AggregationOperation> operations = new ArrayList<>();
 		operations.add(Aggregation.match(criteria));
 
-		AggregationOperation filterPartners = Aggregation.project("userId", "requestId", "title", "description")
+		AggregationOperation filterPartners = Aggregation.project("userId", "requestId", "title", "description",
+				"userImageUrl", "userNickName", "userGender", "userAge", "createdDate", "situation", "budget")
 			.and(ArrayOperators.Filter.filter("partner")
 				.as("item")
 				.by(ComparisonOperators.Eq.valueOf("item.partnerId").equalToValue(partnerId)))
 			.as("partner");
 		operations.add(filterPartners);
 
-		if (status != null) {
-			AggregationOperation filterStatus = Aggregation.match(Criteria.where("partner.status").is(status));
-			operations.add(filterStatus);
+		// 정렬 적용
+		if (pageable.getSort().isSorted()) {
+			operations.add(Aggregation.sort(pageable.getSort()));
 		}
 
 		operations.add(Aggregation.skip((long) pageable.getPageNumber() * pageable.getPageSize()));
@@ -86,6 +90,7 @@ public class CustomRequestsRepositoryImpl implements CustomRequestsRepository {
 		AggregationResults<Requests> results = mongoTemplate.aggregate(aggregation, "requests", Requests.class);
 		List<Requests> requests = results.getMappedResults();
 
+		// 필터링된 총 문서 수 계산
 		long count = mongoTemplate.count(Query.query(criteria), Requests.class);
 
 		return PageableExecutionUtils.getPage(
