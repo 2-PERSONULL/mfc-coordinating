@@ -122,6 +122,7 @@ public class KafkaConfig {
 	public ConsumerFactory<String, PaymentCompletedEvent> paymentCompletedConsumerFactory() {
 		Map<String, Object> config = getCommonConsumerConfig();
 		config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, EARLIEST);
+		config.put(ConsumerConfig.GROUP_ID_CONFIG, "request-expired-group");
 		return new DefaultKafkaConsumerFactory<>(
 			config,
 			new StringDeserializer(),
@@ -134,6 +135,22 @@ public class KafkaConfig {
 		ConcurrentKafkaListenerContainerFactory<String, PaymentCompletedEvent> factory = createListenerContainerFactory(paymentCompletedConsumerFactory());
 		factory.setConcurrency(2);
 		return factory;
+	}
+
+	@Bean
+	public ConsumerFactory<String, PaymentCompletedEvent> requestPaymentCompletedConsumerFactory() {
+		Map<String, Object> config = getCommonConsumerConfig();
+		config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, EARLIEST);
+		return new DefaultKafkaConsumerFactory<>(
+			config,
+			new StringDeserializer(),
+			new JsonDeserializer<>(PaymentCompletedEvent.class, false)
+		);
+	}
+
+	@Bean
+	public ConcurrentKafkaListenerContainerFactory<String, PaymentCompletedEvent> requestPaymentCompletedContainerFactory() {
+		return createListenerContainerFactory(paymentCompletedConsumerFactory());
 	}
 
 	@Bean
